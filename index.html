@@ -461,7 +461,7 @@ let player=null,userData=null;
 let currentScreen='auth';
 let lobbyCode=null,lobbyRef=null,lobbyData=null;
 let isHost=false;
-let gameTimer=null,timerStarted=0;
+let gameTimer=null,timerStarted=0,lastSfxQuestion=-1;
 let soundboardOpen=false;
 let lastSoundAt=0,lastEmoteAt=0;
 let soundboardRef=null,emoteRef=null;
@@ -695,7 +695,7 @@ if(!lobby){showToast('Lobby closed','error');showScreen('menu');return}
 lobbyData=lobby;
 isHost=(lobby.hostKey===sk(player));
 if(lobby.status==='playing'){
-if(currentScreen==='lobby')renderGame();
+if(currentScreen==='lobby'){sfxGameStart();renderGame()}
 else if(currentScreen==='game')updateGameUI(lobby);
 return}
 if(lobby.status==='finished'){renderResults();return}
@@ -725,6 +725,7 @@ lobbyCode=null;lobbyData=null;isHost=false;showScreen('menu')}
 
 /* ===== GAME ===== */
 async function startGame(){
+sfxGameStart();
 if(!isHost||!lobbyCode)return;
 const lobby=lobbyData;if(!lobby)return;
 const players=lobby.players?Object.entries(lobby.players).filter(([k,v])=>v.connected!==false):[];
@@ -732,7 +733,7 @@ if(players.length<2)return;
 const order=players.map(([k])=>k).sort(()=>Math.random()-.5);
 await db.ref('quiz/lobbies/'+lobbyCode).update({status:'playing'});
 await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').set({
-currentRound:0,currentQuestion:0,questionsPerRound:5,
+currentQuestion:0,pickerIndex:0,
 phase:'pickCategory',currentPicker:order[0],pickerOrder:order,
 selectedCategory:'',usedCategories:[],usedQuestionIds:[],
 currentQuestionData:null,playerAnswers:null,results:null})}
@@ -787,7 +788,7 @@ const elapsed=Math.max(0,(Date.now()-qd.startedAt)/1000);
 const remaining=Math.max(0,20-elapsed);
 const pct=Math.max(0,(remaining/20)*100);
 const cat=CATEGORIES.find(c=>c.id===gs.selectedCategory);
-content=`<div class="game-header"><span class="game-round">Round ${(gs.currentRound||0)+1} Q${(gs.currentQuestion||0)+1}/5</span><span class="game-category">${cat?cat.icon+' '+cat.name:''}</span></div>
+content=`<div class="game-header"><span class="game-round">Question ${(gs.currentQuestion||0)+1}/${CATEGORIES.length}</span><span class="game-category">${cat?cat.icon+' '+cat.name:''}</span></div>
 <div class="timer-bar-wrap"><div class="timer-bar-fill ${remaining<5?'urgent':''}" style="width:${pct}%"></div></div>
 <div class="timer-text">${Math.ceil(remaining)}s</div>
 <div class="question-card"><span class="question-points ${qd.points===5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${esc(qd.question)}</div></div>
@@ -797,13 +798,16 @@ startTimerTick()}
 else if(phase==='showAnswer'){
 const qd=gs.currentQuestionData;if(!qd)return;
 const myAnswer=gs.playerAnswers&&gs.playerAnswers[sk(player)];
+const qIdx=gs.currentQuestion||0;
+if(lastSfxQuestion!==qIdx){lastSfxQuestion=qIdx;
+if(myAnswer&&myAnswer.answerIndex===qd.correctIndex)sfxCorrect();else sfxWrong()}
 const cat=CATEGORIES.find(c=>c.id===gs.selectedCategory);
-content=`<div class="game-header"><span class="game-round">Round ${(gs.currentRound||0)+1} Q${(gs.currentQuestion||0)+1}/5</span><span class="game-category">${cat?cat.icon+' '+cat.name:''}</span></div>
+content=`<div class="game-header"><span class="game-round">Question ${(gs.currentQuestion||0)+1}/${CATEGORIES.length}</span><span class="game-category">${cat?cat.icon+' '+cat.name:''}</span></div>
 <div class="question-card"><span class="question-points ${qd.points===5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${esc(qd.question)}</div></div>
 <div class="answers-grid">${qd.answers.map((a,i)=>`<button class="answer-btn ${i===qd.correctIndex?'correct':'wrong'} locked">${esc(a)}${i===qd.correctIndex?' ✓':''}</button>`).join('')}</div>
 <div style="text-align:center;margin-top:6px;font-size:13px">${myAnswer&&myAnswer.answerIndex===qd.correctIndex?`<span style="color:var(--green)">Correct! +${qd.points}</span>`:`<span style="color:var(--red)">Wrong!</span>`}</div>`}
 else if(phase==='roundEnd'){
-content=`<div class="waiting-box"><div class="waiting-icon">📊</div><div>Round ${(gs.currentRound||0)+1} complete!</div><div style="font-size:12px;color:var(--text-dim);margin-top:4px">Next round starting<span class="waiting-dots"></span></div></div>`}
+content=`<div class="waiting-box"><div class="waiting-icon">📊</div><div>Next player picks!</div></div>`}
 
 document.getElementById('app').innerHTML=`<div class="game-screen">${content}${scoreboardHTML}${renderEmoteBar()}</div>`;
 setupSoundboard()}
@@ -826,11 +830,12 @@ const pct=Math.max(0,(remaining/20)*100);
 const timerEl=document.querySelector('.timer-text');
 const barEl=document.querySelector('.timer-bar-fill');
 if(timerEl)timerEl.textContent=Math.ceil(remaining)+'s';
-if(barEl){barEl.style.width=pct+'%';if(remaining<5)barEl.classList.add('urgent');else barEl.classList.remove('urgent')}
+if(barEl){barEl.style.width=pct+'%';if(remaining<5){barEl.classList.add('urgent');const sec=Math.ceil(remaining);if(sec>0&&sec<=5&&Math.abs(remaining-sec)<0.3)sfxCountdown()}else barEl.classList.remove('urgent')}
 if(remaining<=0&&isHost){clearInterval(gameTimer);gameTimer=null;hostAdvanceFromQuestion()}
 },500)}
 
 async function pickCategory(catId){
+sfxPick();
 if(!lobbyCode||!lobbyData)return;
 const gs=lobbyData.gameState;
 if(!gs||gs.currentPicker!==sk(player))return;
@@ -840,6 +845,7 @@ await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({selectedCategory:ca
 if(isHost)hostShowNextQuestion()}
 
 async function submitAnswer(idx){
+sfxTick();
 if(!lobbyCode)return;
 await db.ref('quiz/lobbies/'+lobbyCode+'/gameState/playerAnswers/'+sk(player)).set({answerIndex:idx,answeredAt:Date.now()});
 const gs=lobbyData&&lobbyData.gameState;
@@ -900,21 +906,18 @@ setTimeout(()=>hostAfterAnswer(),3000)}
 async function hostAfterAnswer(){
 if(!isHost||!lobbyCode)return;
 const gs=lobbyData.gameState;if(!gs)return;
-const qNum=(gs.currentQuestion||0)+1;
-const qPerRound=gs.questionsPerRound||5;
-if(qNum<qPerRound){
-await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({currentQuestion:qNum,phase:'showQuestion',playerAnswers:null});
-hostShowNextQuestion()}
-else{
-const roundNum=(gs.currentRound||0)+1;
-const totalRounds=gs.pickerOrder?Math.min(gs.pickerOrder.length,CATEGORIES.length):CATEGORIES.length;
-if(roundNum>=totalRounds){hostEndGame()}
-else{
-await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({phase:'roundEnd',currentRound:roundNum,currentQuestion:0});
+const used=gs.usedCategories||[];
+// Game over when all 8 categories used
+if(used.length>=CATEGORIES.length){hostEndGame();return}
+// Rotate to next picker
 const order=gs.pickerOrder||[];
-const nextPicker=order[roundNum%order.length];
+const pickerIdx=(gs.pickerIndex||0)+1;
+const nextPicker=order[pickerIdx%order.length];
+const qNum=(gs.currentQuestion||0)+1;
 setTimeout(async()=>{
-await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({phase:'pickCategory',currentPicker:nextPicker,selectedCategory:'',playerAnswers:null})},4000)}}}
+await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({
+phase:'pickCategory',currentPicker:nextPicker,pickerIndex:pickerIdx,
+selectedCategory:'',playerAnswers:null,currentQuestion:qNum})},3000)}
 
 async function hostEndGame(){
 if(!isHost||!lobbyCode)return;
@@ -942,6 +945,7 @@ function renderResults(){
 const gs=lobbyData&&lobbyData.gameState;
 const results=gs&&gs.results;
 if(!results){showScreen('menu');return}
+if(currentScreen!=='results')sfxWinner();
 currentScreen='results';
 const sorted=Object.entries(results).sort((a,b)=>a[1].rank-b[1].rank);
 const myResult=results[sk(player)];
@@ -1120,6 +1124,70 @@ for(let i=0;i<40;i++){
 const c=document.createElement('div');c.className='confetti';
 c.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
 document.body.appendChild(c);setTimeout(()=>c.remove(),4000)}}
+
+/* ===== QUIZ SFX ===== */
+let audioCtx=null;
+function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx}
+
+function sfxCorrect(){
+const ctx=getAudioCtx();const now=ctx.currentTime;
+const o1=ctx.createOscillator();const g1=ctx.createGain();
+o1.type='sine';o1.frequency.setValueAtTime(523,now);o1.frequency.setValueAtTime(659,now+0.1);o1.frequency.setValueAtTime(784,now+0.2);
+g1.gain.setValueAtTime(0.3,now);g1.gain.exponentialRampToValueAtTime(0.01,now+0.4);
+o1.connect(g1);g1.connect(ctx.destination);o1.start(now);o1.stop(now+0.4)}
+
+function sfxWrong(){
+const ctx=getAudioCtx();const now=ctx.currentTime;
+const o=ctx.createOscillator();const g=ctx.createGain();
+o.type='square';o.frequency.setValueAtTime(200,now);o.frequency.setValueAtTime(150,now+0.15);
+g.gain.setValueAtTime(0.2,now);g.gain.exponentialRampToValueAtTime(0.01,now+0.4);
+o.connect(g);g.connect(ctx.destination);o.start(now);o.stop(now+0.4)}
+
+function sfxTick(){
+const ctx=getAudioCtx();const now=ctx.currentTime;
+const o=ctx.createOscillator();const g=ctx.createGain();
+o.type='sine';o.frequency.setValueAtTime(880,now);
+g.gain.setValueAtTime(0.15,now);g.gain.exponentialRampToValueAtTime(0.01,now+0.08);
+o.connect(g);g.connect(ctx.destination);o.start(now);o.stop(now+0.08)}
+
+function sfxCountdown(){
+const ctx=getAudioCtx();const now=ctx.currentTime;
+const o=ctx.createOscillator();const g=ctx.createGain();
+o.type='sine';o.frequency.setValueAtTime(600,now);
+g.gain.setValueAtTime(0.25,now);g.gain.exponentialRampToValueAtTime(0.01,now+0.15);
+o.connect(g);g.connect(ctx.destination);o.start(now);o.stop(now+0.15)}
+
+function sfxGameStart(){
+const ctx=getAudioCtx();const now=ctx.currentTime;
+[523,659,784,1047].forEach((f,i)=>{
+const o=ctx.createOscillator();const g=ctx.createGain();
+o.type='sine';o.frequency.setValueAtTime(f,now+i*0.12);
+g.gain.setValueAtTime(0.25,now+i*0.12);g.gain.exponentialRampToValueAtTime(0.01,now+i*0.12+0.2);
+o.connect(g);g.connect(ctx.destination);o.start(now+i*0.12);o.stop(now+i*0.12+0.2)})}
+
+function sfxPick(){
+const ctx=getAudioCtx();const now=ctx.currentTime;
+const o=ctx.createOscillator();const g=ctx.createGain();
+o.type='sine';o.frequency.setValueAtTime(440,now);o.frequency.setValueAtTime(660,now+0.08);
+g.gain.setValueAtTime(0.2,now);g.gain.exponentialRampToValueAtTime(0.01,now+0.2);
+o.connect(g);g.connect(ctx.destination);o.start(now);o.stop(now+0.2)}
+
+function sfxGameOver(){
+const ctx=getAudioCtx();const now=ctx.currentTime;
+[784,659,523,392].forEach((f,i)=>{
+const o=ctx.createOscillator();const g=ctx.createGain();
+o.type='triangle';o.frequency.setValueAtTime(f,now+i*0.2);
+g.gain.setValueAtTime(0.3,now+i*0.2);g.gain.exponentialRampToValueAtTime(0.01,now+i*0.2+0.3);
+o.connect(g);g.connect(ctx.destination);o.start(now+i*0.2);o.stop(now+i*0.2+0.3)})}
+
+function sfxWinner(){
+const ctx=getAudioCtx();const now=ctx.currentTime;
+const notes=[523,659,784,1047,784,1047];
+notes.forEach((f,i)=>{
+const o=ctx.createOscillator();const g=ctx.createGain();
+o.type='sine';o.frequency.setValueAtTime(f,now+i*0.1);
+g.gain.setValueAtTime(0.3,now+i*0.1);g.gain.exponentialRampToValueAtTime(0.01,now+i*0.1+0.15);
+o.connect(g);g.connect(ctx.destination);o.start(now+i*0.1);o.stop(now+i*0.1+0.15)})}
 
 /* ===== INIT ===== */
 function init(){
