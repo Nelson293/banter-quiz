@@ -88,7 +88,7 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer}
 
 /* ===== GAME ===== */
-.game-screen{padding:24px 40px;display:flex;flex-direction:column;gap:14px;max-width:900px;margin:0 auto;width:100%}
+.game-screen{padding:24px 40px 100px;display:flex;flex-direction:column;gap:14px;max-width:900px;margin:0 auto;width:100%}
 .game-header{display:flex;justify-content:space-between;align-items:center}
 .game-round{font-size:13px;color:var(--text-dim);font-family:'JetBrains Mono',monospace}
 .game-category{font-size:14px;font-weight:700;color:var(--accent)}
@@ -143,14 +143,21 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .cat-btn .cat-name{font-size:11px}
 
 /* ===== SCOREBOARD (IN-GAME) ===== */
-.scoreboard{display:flex;flex-direction:column;gap:4px}
-.scoreboard-title{font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:2px}
-.sb-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--card);border:1px solid var(--border);border-bottom:2px solid var(--depth-dark);border-radius:8px;font-size:12px;box-shadow:2px 2px 0 var(--depth-dark)}
-.sb-row.me{border-color:var(--accent);background:rgba(124,92,255,.08)}
-.sb-rank{font-weight:700;color:var(--text-dim);width:20px;text-align:center}
-.sb-avatar{font-size:16px}
-.sb-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-score{font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.player-bar{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:6px;padding:10px 16px;background:linear-gradient(180deg,transparent 0%,rgba(20,16,36,.95) 30%);z-index:50;flex-wrap:wrap}
+.pb-player{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:70px;max-width:90px;position:relative}
+.pb-avatar-wrap{position:relative;width:44px;height:44px}
+.pb-avatar-wrap img,.pb-avatar-wrap span{width:44px;height:44px;border-radius:50%;border:2px solid var(--border);display:block}
+.pb-player.me .pb-avatar-wrap img,.pb-player.me .pb-avatar-wrap span{border-color:var(--accent)}
+.pb-player.answered .pb-avatar-wrap::after{content:'✓';position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:var(--green);border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;border:2px solid var(--bg)}
+.pb-player.picking .pb-avatar-wrap{animation:pickPulse 1s infinite}
+@keyframes pickPulse{0%,100%{box-shadow:0 0 0 0 rgba(124,92,255,.5)}50%{box-shadow:0 0 0 8px rgba(124,92,255,0)}}
+.pb-name{font-size:10px;font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+.pb-score{font-size:11px;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.pb-streak{position:absolute;top:-6px;right:-6px;background:var(--gold);color:#1a1625;font-size:9px;font-weight:800;padding:1px 5px;border-radius:10px;font-family:'JetBrains Mono',monospace}
+.pb-emote{position:absolute;top:-40px;left:50%;transform:translateX(-50%);font-size:28px;animation:emotePopUp 1.8s ease-out forwards;pointer-events:none;z-index:100}
+@keyframes emotePopUp{0%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}60%{opacity:1;transform:translateX(-50%) translateY(-30px) scale(1.2)}100%{opacity:0;transform:translateX(-50%) translateY(-60px) scale(0.5)}}
+.pb-speed{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;color:var(--gold);animation:speedPop 1.5s ease-out forwards;pointer-events:none;white-space:nowrap}
+@keyframes speedPop{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-20px)}}
 
 /* ===== RESULTS ===== */
 .results-screen{padding:20px 16px;display:flex;flex-direction:column;gap:14px;align-items:center}
@@ -202,7 +209,7 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .sb-sound-btn:disabled{opacity:.4;cursor:default}
 
 /* ===== EMOTE BAR ===== */
-.emote-bar{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.emote-bar{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px 0}
 .emote-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;box-shadow:0 2px 0 var(--depth-dark)}
 .emote-btn:hover{transform:translateY(-2px);box-shadow:0 4px 0 var(--depth-dark)}
 .emote-btn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--depth-dark)}
@@ -550,7 +557,7 @@ let player=null,userData=null;
 let currentScreen='auth';
 let lobbyCode=null,lobbyRef=null,lobbyData=null;
 let isHost=false;
-let gameTimer=null,timerStarted=0,lastSfxQuestion=-1;
+let gameTimer=null,timerStarted=0,lastSfxQuestion=-1,advancing=false;
 let soundboardOpen=false;
 let lastSoundAt=0,lastEmoteAt=0;
 let soundboardRef=null,emoteRef=null;
@@ -850,11 +857,28 @@ if(phase==='gameOver'){renderResults();return}
 // Host auto-advances when a non-host picks a category
 if(isHost&&phase==='pickCategory'&&gs.selectedCategory){hostShowNextQuestion();return}
 
+// Host auto-advances when all players have answered
+if(isHost&&phase==='showQuestion'){
+const connPlayers=Object.keys(players).filter(k=>players[k].connected!==false);
+const ans=gs.playerAnswers||{};
+const allAnswered=connPlayers.length>0&&connPlayers.every(k=>ans[k]!==undefined&&ans[k]!==null);
+if(allAnswered){hostAdvanceFromQuestion();return}}
+
 let content='';
 const sorted=Object.entries(players).filter(([k,v])=>v.connected!==false).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
 
-const scoreboardHTML=`<div class="scoreboard"><div class="scoreboard-title">Scoreboard</div>
-${sorted.map(([k,v],i)=>`<div class="sb-row ${k===sk(player)?'me':''}"><span class="sb-rank">${i+1}</span><span class="sb-avatar">${avatarOrFallback(v.avatar,20)}</span><span class="sb-name">${esc(v.displayName||v.name)}</span><span class="sb-score">${v.score||0}</span></div>`).join('')}</div>`;
+const answers=gs.playerAnswers||{};
+const picker=gs.currentPicker||'';
+const playerBarHTML=`<div class="player-bar" id="playerBar">
+${sorted.map(([k,v])=>{
+const hasAnswered=answers[k]!==undefined&&answers[k]!==null;
+const isPicking=k===picker&&phase==='pickCategory';
+const streak=v.streak||0;
+return`<div class="pb-player ${k===sk(player)?'me':''} ${hasAnswered&&phase==='showQuestion'?'answered':''} ${isPicking?'picking':''}" data-pk="${k}">
+<div class="pb-avatar-wrap">${avatarOrFallback(v.avatar,44)}</div>
+${streak>=2?`<div class="pb-streak">🔥${streak}</div>`:''}
+<div class="pb-name">${esc(v.displayName||v.name)}</div>
+<div class="pb-score">${v.score||0}</div></div>`}).join('')}</div>`;
 
 if(phase==='pickCategory'){
 const picker=gs.currentPicker;
@@ -894,16 +918,19 @@ if(lastSfxQuestion!==qIdx){lastSfxQuestion=qIdx;
 if(myAnswer&&myAnswer.answerIndex===qd.correctIndex)sfxCorrect();else sfxWrong()}
 const cat=CATEGORIES.find(c=>c.id===gs.selectedCategory);
 const isSil=!!qd.img;
+const fastK=gs.fastestPlayer;
+const fastP=fastK&&players[fastK]?players[fastK]:null;
 content=`<div class="game-header"><span class="game-round">Question ${(gs.currentQuestion||0)+1}/${CATEGORIES.length}</span><span class="game-category">${cat?cat.icon+' '+cat.name:''}</span></div>
 ${isSil?`<div class="sil-card revealed"><span class="question-points pts5">5pts</span><div class="sil-label">${esc(qd.answers[qd.correctIndex])}</div><img class="sil-img revealed" src="${qd.img}" onerror="this.style.display='none'" alt=""></div>`
 :`<div class="question-card"><span class="question-points ${qd.points===5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${esc(qd.question)}</div></div>`}
 <div class="${isSil?'answers-grid-10':'answers-grid'}">${qd.answers.map((a,i)=>`<button class="answer-btn ${i===qd.correctIndex?'correct':'wrong'} locked">${esc(a)}${i===qd.correctIndex?' ✓':''}</button>`).join('')}</div>
-<div style="text-align:center;margin-top:6px;font-size:13px">${myAnswer&&myAnswer.answerIndex===qd.correctIndex?`<span style="color:var(--green)">Correct! +${qd.points}</span>`:`<span style="color:var(--red)">Wrong!</span>`}</div>`}
+<div style="text-align:center;margin-top:8px;font-size:13px">${myAnswer&&myAnswer.answerIndex===qd.correctIndex?`<span style="color:var(--green)">Correct! +${qd.points}</span>`:`<span style="color:var(--red)">Wrong!</span>`}</div>
+${fastP?`<div style="text-align:center;margin-top:4px;font-size:12px;color:var(--gold)">⚡ Fastest: ${esc(fastP.displayName||fastP.name)}</div>`:''}`}
 else if(phase==='roundEnd'){
 content=`<div class="waiting-box"><div class="waiting-icon">📊</div><div>Next player picks!</div></div>`}
 
-document.getElementById('app').innerHTML=`<div class="game-screen">${content}${scoreboardHTML}${renderEmoteBar()}</div>`;
-setupSoundboard()}
+document.getElementById('app').innerHTML=`<div class="game-screen">${content}${renderEmoteBar()}</div>${playerBarHTML}`;
+setupSoundboard();listenForEmotes()}
 
 function renderEmoteBar(){
 const owned=userData&&userData.purchasedEmotes?Object.keys(userData.purchasedEmotes):[];
@@ -952,6 +979,7 @@ if(answered>=players.length&&isHost)hostAdvanceFromQuestion()}
 /* ===== HOST GAME CONTROL ===== */
 async function hostShowNextQuestion(){
 if(!isHost||!lobbyCode)return;
+advancing=false;
 const gs=lobbyData.gameState;
 const cat=gs.selectedCategory;
 const used=gs.usedQuestionIds||[];
@@ -987,18 +1015,32 @@ const newCorrect=indices.indexOf(q.correct);
 return{answers:newAnswers,correctIndex:newCorrect}}
 
 async function hostAdvanceFromQuestion(){
-if(!isHost||!lobbyCode)return;
+if(!isHost||!lobbyCode||advancing)return;
+advancing=true;
 const gs=lobbyData.gameState;if(!gs)return;
 const qd=gs.currentQuestionData;if(!qd)return;
-// Score answers
 const answers=gs.playerAnswers||{};
 const players=lobbyData.players||{};
 const updates={};
+let fastest=null,fastestTime=Infinity;
 Object.entries(answers).forEach(([k,v])=>{
-if(v&&v.answerIndex===qd.correctIndex){
+const correct=v&&v.answerIndex===qd.correctIndex;
 const cur=players[k]?players[k].score||0:0;
-updates['players/'+k+'/score']=cur+qd.points}});
+const curStreak=players[k]?players[k].streak||0:0;
+if(correct){
+let pts=qd.points;
+// Speed bonus: answered in under 5 seconds
+const speed=v.answeredAt?((v.answeredAt-qd.startedAt)/1000):20;
+if(speed<5)pts+=1;
+// Streak bonus: 3+ streak gives +1
+if(curStreak>=2)pts+=1;
+updates['players/'+k+'/score']=cur+pts;
+updates['players/'+k+'/streak']=curStreak+1;
+if(speed<fastestTime){fastestTime=speed;fastest=k}
+}else{
+updates['players/'+k+'/streak']=0}});
 updates['gameState/phase']='showAnswer';
+if(fastest)updates['gameState/fastestPlayer']=fastest;
 await db.ref('quiz/lobbies/'+lobbyCode).update(updates);
 setTimeout(()=>hostAfterAnswer(),3000)}
 
@@ -1201,14 +1243,25 @@ async function sendEmote(emoji){
 if(!lobbyCode)return;
 if(Date.now()-lastEmoteAt<3000)return;
 lastEmoteAt=Date.now();
-await db.ref('quiz/lobbies/'+lobbyCode+'/emotes').push({playedBy:player,emoji,timestamp:Date.now()});
-showFloatingEmote(emoji)}
+await db.ref('quiz/lobbies/'+lobbyCode+'/emotes').push({playedBy:player,emoji,timestamp:Date.now()})}
 
-function showFloatingEmote(emoji){
-const el=document.createElement('div');
-el.className='emote-float';el.textContent=emoji;
-el.style.left=Math.random()*60+20+'%';el.style.bottom='120px';
-document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
+function listenForEmotes(){
+if(emoteRef||!lobbyCode)return;
+emoteRef=db.ref('quiz/lobbies/'+lobbyCode+'/emotes');
+emoteRef.orderByChild('timestamp').startAt(Date.now()).on('child_added',snap=>{
+const d=snap.val();if(!d)return;
+showEmoteOnPlayer(d.playedBy,d.emoji);
+snap.ref.remove()})}
+
+function showEmoteOnPlayer(playerName,emoji){
+const bar=document.getElementById('playerBar');if(!bar)return;
+const pk=sk(playerName);
+const el=bar.querySelector(`[data-pk="${pk}"]`);
+if(!el)return;
+const em=document.createElement('div');
+em.className='pb-emote';em.textContent=emoji;
+el.querySelector('.pb-avatar-wrap').appendChild(em);
+setTimeout(()=>em.remove(),1800)}
 
 /* ===== TOAST ===== */
 function showToast(msg,type=''){
