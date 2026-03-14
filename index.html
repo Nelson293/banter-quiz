@@ -115,6 +115,21 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .answer-btn.disabled{cursor:default;opacity:.5}
 .timer-text{text-align:center;font-size:28px;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
 
+/* ===== SILHOUETTE ===== */
+.sil-card{background:var(--card);border:2px solid var(--gold);border-bottom:5px solid rgba(255,215,0,.4);border-radius:16px;padding:20px;text-align:center;box-shadow:0 0 20px rgba(255,215,0,.15),var(--iso-shadow-md);position:relative;display:flex;flex-direction:column;align-items:center;gap:10px}
+.sil-label{font-size:20px;font-weight:800;color:var(--gold)}
+.sil-img{width:220px;height:280px;object-fit:cover;border-radius:12px;filter:blur(12px) brightness(0.15) saturate(0);transition:filter .6s ease}
+.sil-img.revealed{filter:none}
+.sil-card.revealed{border-color:var(--green)}
+.answers-grid-10{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.answers-grid-10 .answer-btn{padding:12px 8px;font-size:13px;min-height:50px}
+.answers-grid-10 .answer-btn:nth-child(5){background:#8b5cf6}
+.answers-grid-10 .answer-btn:nth-child(6){background:#0ea5e9}
+.answers-grid-10 .answer-btn:nth-child(7){background:#ec4899}
+.answers-grid-10 .answer-btn:nth-child(8){background:#14b8a6}
+.answers-grid-10 .answer-btn:nth-child(9){background:#f97316}
+.answers-grid-10 .answer-btn:nth-child(10){background:#6366f1}
+
 /* ===== CATEGORY PICK ===== */
 .category-pick{display:flex;flex-direction:column;gap:12px;align-items:center}
 .pick-title{font-size:16px;font-weight:700;text-align:center}
@@ -455,6 +470,80 @@ const QUESTIONS={
 'geography':[], 'science':[], 'movies-tv':[], 'general-knowledge':[], 'modern-history':[]
 };
 
+const SILHOUETTE_QS={
+'league-of-legends':[
+{id:'sil_lol1',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Thresh_0.jpg',q:'Name this champion',answers:['Thresh','Nautilus','Yorick','Karthus','Pyke','Hecarim','Mordekaiser','Kalista','Viego','Renata'],correct:0,points:5},
+{id:'sil_lol2',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ahri_0.jpg',q:'Name this champion',answers:['Ahri','Lux','Syndra','LeBlanc','Evelynn','Morgana','Karma','Neeko','Zoe','Lissandra'],correct:0,points:5},
+{id:'sil_lol3',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Yasuo_0.jpg',q:'Name this champion',answers:['Yasuo','Yone','Shen','Zed','Talon','Kayn','Fiora','Irelia','Akali','Samira'],correct:0,points:5},
+{id:'sil_lol4',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Jinx_0.jpg',q:'Name this champion',answers:['Jinx','Caitlyn','Vi','MissFortune','Ashe','Vayne','Xayah','Tristana','Ezreal','Aphelios'],correct:0,points:5},
+{id:'sil_lol5',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Teemo_0.jpg',q:'Name this champion',answers:['Teemo','Kennen','Rumble','Lulu','Tristana','Veigar','Corki','Heimerdinger','Ziggs','Fizz'],correct:0,points:5},
+{id:'sil_lol6',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Darius_0.jpg',q:'Name this champion',answers:['Darius','Garen','Sett','Mordekaiser','Aatrox','Renekton','Urgot','Illaoi','Olaf','Volibear'],correct:0,points:5},
+{id:'sil_lol7',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Zed_0.jpg',q:'Name this champion',answers:['Zed','Shen','Talon','Kayn','Akali','Nocturne','Rengar','Pyke','Qiyana','Ekko'],correct:0,points:5},
+{id:'sil_lol8',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Lux_0.jpg',q:'Name this champion',answers:['Lux','Ahri','Syndra','Morgana','Janna','Sona','Nami','Karma','Seraphine','Orianna'],correct:0,points:5},
+{id:'sil_lol9',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Rengar_0.jpg',q:'Name this champion',answers:['Rengar','Warwick','Nidalee','Volibear','Udyr','Wukong','KhaZix','Nocturne','LeeSin','Shaco'],correct:0,points:5},
+{id:'sil_lol10',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Vi_0.jpg',q:'Name this champion',answers:['Vi','Jinx','Caitlyn','Camille','Riven','Diana','Leona','Sejuani','Rell','Illaoi'],correct:0,points:5},
+{id:'sil_lol11',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Jhin_0.jpg',q:'Name this champion',answers:['Jhin','Varus','Aphelios','Draven','Graves','Lucian','Twisted Fate','Senna','Samira','KaiSa'],correct:0,points:5},
+{id:'sil_lol12',img:'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Warwick_0.jpg',q:'Name this champion',answers:['Warwick','Rengar','Volibear','Nocturne','Fiddlesticks','Shaco','Hecarim','Udyr','Kindred','Lillia'],correct:0,points:5}
+],
+'runescape':[
+{id:'sil_rs1',img:'https://oldschool.runescape.wiki/images/Abyssal_whip_detail.png',q:'Name this item',answers:['Abyssal whip','Kraken tentacle','Abyssal tentacle','Vine whip','Dark bow','Abyssal dagger','Abyssal bludgeon','Saradomin sword','Ghrazi rapier','Blade of saeldor'],correct:0,points:5},
+{id:'sil_rs2',img:'https://oldschool.runescape.wiki/images/Dragon_scimitar_detail.png',q:'Name this item',answers:['Dragon scimitar','Rune scimitar','Dragon sword','Dragon longsword','Dragon mace','Abyssal whip','Granite hammer','Dragon dagger','Dragon battleaxe','Dragon halberd'],correct:0,points:5},
+{id:'sil_rs3',img:'https://oldschool.runescape.wiki/images/Armadyl_godsword_detail.png',q:'Name this item',answers:['Armadyl godsword','Bandos godsword','Saradomin godsword','Zamorak godsword','Dragon claws','Crystal halberd','Armadyl crossbow','Dragon hunter lance','Scythe of vitur','Twisted bow'],correct:0,points:5},
+{id:'sil_rs4',img:'https://oldschool.runescape.wiki/images/Twisted_bow_detail.png',q:'Name this item',answers:['Twisted bow','Dark bow','Crystal bow','Magic shortbow','Toxic blowpipe','Armadyl crossbow','Dragon crossbow','Craw\'s bow','Bow of faerdhinen','Heavy ballista'],correct:0,points:5},
+{id:'sil_rs5',img:'https://oldschool.runescape.wiki/images/Fire_cape_detail.png',q:'Name this item',answers:['Fire cape','Infernal cape','Obsidian cape','Ardougne cloak','Ava\'s assembler','Max cape','Skillcape','Mythical cape','Champions cape','Soul cape'],correct:0,points:5},
+{id:'sil_rs6',img:'https://oldschool.runescape.wiki/images/Bandos_chestplate_detail.png',q:'Name this item',answers:['Bandos chestplate','Torva platebody','Fighter torso','Dragon chainbody','Justiciar chestguard','Karil\'s leathertop','Armadyl chestplate','Inquisitor\'s hauberk','Ancestral robe top','Crystal body'],correct:0,points:5},
+{id:'sil_rs7',img:'https://oldschool.runescape.wiki/images/Elysian_spirit_shield_detail.png',q:'Name this item',answers:['Elysian spirit shield','Arcane spirit shield','Spectral spirit shield','Divine spirit shield','Dragonfire shield','Crystal shield','Malediction ward','Odium ward','Dinh\'s bulwark','Avernic defender'],correct:0,points:5},
+{id:'sil_rs8',img:'https://oldschool.runescape.wiki/images/Toxic_blowpipe_detail.png',q:'Name this item',answers:['Toxic blowpipe','Magic shortbow','Dart','Knife','Twisted bow','Crystal bow','Dragon crossbow','Armadyl crossbow','Chinchompa','Craw\'s bow'],correct:0,points:5},
+{id:'sil_rs9',img:'https://oldschool.runescape.wiki/images/Scythe_of_vitur_detail.png',q:'Name this item',answers:['Scythe of vitur','Dragon halberd','Crystal halberd','Saradomin sword','Zamorakian hasta','Sanguinesti staff','Staff of the dead','Kodai wand','Nightmare staff','Ghrazi rapier'],correct:0,points:5},
+{id:'sil_rs10',img:'https://oldschool.runescape.wiki/images/Dragon_claws_detail.png',q:'Name this item',answers:['Dragon claws','Dragon dagger','Abyssal dagger','Dragon knife','Dinh\'s bulwark','Dragon scimitar','Granite maul','Elder maul','Voidwaker','Volatile nightmare staff'],correct:0,points:5}
+],
+'world-of-warcraft':[
+{id:'sil_wow1',img:'https://bnetcmsus-a.akamaihd.net/cms/blog_header/ci/CIGFM91B87BI1509744317498.jpg',q:'Name this character',answers:['Arthas / Lich King','Bolvar Fordragon','Sylvanas Windrunner','Anduin Wrynn','Thrall','Jaina Proudmoore','Illidan Stormrage','Deathwing','Garrosh Hellscream','Tirion Fordring'],correct:0,points:5},
+{id:'sil_wow2',img:'https://bnetcmsus-a.akamaihd.net/cms/blog_header/7s/7SJBMW7JLJDI1548370584962.jpg',q:'Name this character',answers:['Jaina Proudmoore','Sylvanas Windrunner','Tyrande Whisperwind','Alexstrasza','Azshara','Yrel','Maiev Shadowsong','Valeera Sanguinar','Chromie','Whitemane'],correct:0,points:5},
+{id:'sil_wow3',img:'https://bnetcmsus-a.akamaihd.net/cms/blog_header/ow/OWQAGQ8MZRI31567037498459.jpg',q:'Name this character',answers:['Sylvanas Windrunner','Jaina Proudmoore','Tyrande Whisperwind','Alleria Windrunner','Vereesa Windrunner','Alexstrasza','Azshara','Maiev Shadowsong','Lady Vashj','Yrel'],correct:0,points:5},
+{id:'sil_wow4',img:'https://bnetcmsus-a.akamaihd.net/cms/blog_header/8c/8CNUMO5WT7D81565205632498.jpg',q:'Name this character',answers:['Thrall','Garrosh Hellscream','Grommash Hellscream','Varok Saurfang','Vol\'jin','Rexxar','Baine Bloodhoof','Orgrim Doomhammer','Durotan','Cairne Bloodhoof'],correct:0,points:5},
+{id:'sil_wow5',img:'https://bnetcmsus-a.akamaihd.net/cms/blog_header/ev/EVHOBS33DXNA1542673699498.jpg',q:'Name this character',answers:['Illidan Stormrage','Malfurion Stormrage','Kael\'thas Sunstrider','Gul\'dan','Medivh','Maiev Shadowsong','Xavius','Cenarius','Archimonde','Kil\'jaeden'],correct:0,points:5},
+{id:'sil_wow6',img:'https://bnetcmsus-a.akamaihd.net/cms/blog_thumbnail/yf/YFJI5XLMPNNY1534983953607.jpg',q:'Name this character',answers:['Anduin Wrynn','Varian Wrynn','Arthas Menethil','Turalyon','Uther the Lightbringer','Tirion Fordring','Lothar','Bolvar Fordragon','Khadgar','Magni Bronzebeard'],correct:0,points:5},
+{id:'sil_wow7',img:'https://bnetcmsus-a.akamaihd.net/cms/blog_header/1y/1YIAI3GEVUEM1538674795916.jpg',q:'Name this character',answers:['Saurfang','Thrall','Garrosh Hellscream','Grommash Hellscream','Rexxar','Baine Bloodhoof','Vol\'jin','Cairne Bloodhoof','Eitrigg','Nazgrim'],correct:0,points:5},
+{id:'sil_wow8',img:'https://bnetcmsus-a.akamaihd.net/cms/blog_header/9h/9HWSF4YTX5T11551479870192.jpg',q:'Name this character',answers:['Deathwing','Alexstrasza','Ysera','Nozdormu','Malygos','Galakrond','Wrathion','Murozond','Sinestra','Ultraxion'],correct:0,points:5}
+],
+'geography':[
+{id:'sil_geo1',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Tour_eiffel_at_dawn_horizontal.jpg/640px-Tour_eiffel_at_dawn_horizontal.jpg',q:'Name this landmark',answers:['Eiffel Tower','Leaning Tower of Pisa','Big Ben','Statue of Liberty','CN Tower','Tokyo Tower','Burj Khalifa','Empire State Building','Blackpool Tower','Space Needle'],correct:0,points:5},
+{id:'sil_geo2',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Giza_pyramid_complex_%28map%29.svg/640px-Giza_pyramid_complex_%28map%29.svg.png',q:'Name this landmark',answers:['Great Pyramids of Giza','Chichen Itza','Machu Picchu','Angkor Wat','Petra','Stonehenge','Colosseum','Taj Mahal','Parthenon','Easter Island Moai'],correct:0,points:5},
+{id:'sil_geo3',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/New_york_times_square-terabass.jpg/640px-New_york_times_square-terabass.jpg',q:'Name this place',answers:['Times Square','Piccadilly Circus','Shibuya Crossing','Las Vegas Strip','Hollywood Boulevard','Champs-Élysées','Oxford Street','Ginza','Nanjing Road','La Rambla'],correct:0,points:5},
+{id:'sil_geo4',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/440px-Empire_State_Building_%28aerial_view%29.jpg',q:'Name this landmark',answers:['Empire State Building','Chrysler Building','One World Trade Center','Willis Tower','Burj Khalifa','Taipei 101','CN Tower','Petronas Towers','Shanghai Tower','Transamerica Pyramid'],correct:0,points:5},
+{id:'sil_geo5',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/GoldenGateBridge-001.jpg/640px-GoldenGateBridge-001.jpg',q:'Name this landmark',answers:['Golden Gate Bridge','Brooklyn Bridge','Tower Bridge','Sydney Harbour Bridge','Ponte Vecchio','Rialto Bridge','Millau Viaduct','Forth Bridge','Akashi Kaikyo Bridge','Tsing Ma Bridge'],correct:0,points:5}
+],
+'science':[
+{id:'sil_sci1',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Albert_Einstein_Head.jpg/440px-Albert_Einstein_Head.jpg',q:'Name this scientist',answers:['Albert Einstein','Niels Bohr','Werner Heisenberg','Richard Feynman','Max Planck','Erwin Schrödinger','Nikola Tesla','Robert Oppenheimer','Enrico Fermi','Paul Dirac'],correct:0,points:5},
+{id:'sil_sci2',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Tesla_circa_1890.jpeg/440px-Tesla_circa_1890.jpeg',q:'Name this scientist',answers:['Nikola Tesla','Thomas Edison','Alexander Graham Bell','Guglielmo Marconi','Michael Faraday','James Clerk Maxwell','Heinrich Hertz','George Westinghouse','Andre-Marie Ampere','Alessandro Volta'],correct:0,points:5},
+{id:'sil_sci3',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Charles_Darwin_seated_crop.jpg/440px-Charles_Darwin_seated_crop.jpg',q:'Name this scientist',answers:['Charles Darwin','Alfred Wallace','Gregor Mendel','Louis Pasteur','Alexander von Humboldt','Carl Linnaeus','Thomas Huxley','Joseph Hooker','Jean-Baptiste Lamarck','Ernst Haeckel'],correct:0,points:5},
+{id:'sil_sci4',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Marie_Curie_c._1920s.jpg/440px-Marie_Curie_c._1920s.jpg',q:'Name this scientist',answers:['Marie Curie','Lise Meitner','Rosalind Franklin','Dorothy Hodgkin','Emmy Noether','Ada Lovelace','Barbara McClintock','Irene Joliot-Curie','Chien-Shiung Wu','Rita Levi-Montalcini'],correct:0,points:5},
+{id:'sil_sci5',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/GodfreyKneller-IsaacNewton-1689.jpg/440px-GodfreyKneller-IsaacNewton-1689.jpg',q:'Name this scientist',answers:['Isaac Newton','Galileo Galilei','Robert Hooke','Gottfried Leibniz','Johannes Kepler','Christiaan Huygens','Edmond Halley','William Harvey','Francis Bacon','René Descartes'],correct:0,points:5}
+],
+'movies-tv':[
+{id:'sil_mov1',img:'https://upload.wikimedia.org/wikipedia/en/a/a9/MassijoDarttVader.jpg',q:'Name this character',answers:['Darth Vader','Kylo Ren','Darth Maul','Emperor Palpatine','Boba Fett','General Grievous','Count Dooku','Darth Revan','Moff Gideon','Starkiller'],correct:0,points:5},
+{id:'sil_mov2',img:'https://upload.wikimedia.org/wikipedia/en/1/1c/Iron_Man_bleeding_edge.jpg',q:'Name this character',answers:['Iron Man','War Machine','Ultron','Vision','Rescue','Iron Monger','Whiplash','Captain America','Star-Lord','Ant-Man'],correct:0,points:5},
+{id:'sil_mov3',img:'https://upload.wikimedia.org/wikipedia/en/2/21/Walter_White_Season_5B.png',q:'Name this character',answers:['Walter White','Jesse Pinkman','Hank Schrader','Gus Fring','Saul Goodman','Mike Ehrmantraut','Tuco Salamanca','Todd Alquist','Hector Salamanca','Jack Welker'],correct:0,points:5},
+{id:'sil_mov4',img:'https://upload.wikimedia.org/wikipedia/en/7/78/Gandalf-grey.jpg',q:'Name this character',answers:['Gandalf','Saruman','Dumbledore','Radagast','Elrond','Aragorn','Legolas','Gimli','Sauron','Theoden'],correct:0,points:5},
+{id:'sil_mov5',img:'https://upload.wikimedia.org/wikipedia/en/b/b6/Joker_%28DC_Comics_character%29.jpg',q:'Name this character',answers:['The Joker','Riddler','Two-Face','Scarecrow','Penguin','Mr. Freeze','Bane','Harley Quinn','Poison Ivy','Ra\'s al Ghul'],correct:0,points:5}
+],
+'general-knowledge':[
+{id:'sil_gk1',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/640px-Google_2015_logo.svg.png',q:'Name this brand',answers:['Google','Bing','Yahoo','DuckDuckGo','Baidu','Ask','AOL','Lycos','Altavista','Ecosia'],correct:0,points:5},
+{id:'sil_gk2',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/640px-Amazon_logo.svg.png',q:'Name this brand',answers:['Amazon','eBay','Alibaba','Walmart','Target','Tesco','Shopify','Etsy','Wish','AliExpress'],correct:0,points:5},
+{id:'sil_gk3',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IBM_logo.svg/640px-IBM_logo.svg.png',q:'Name this brand',answers:['IBM','HP','Dell','Intel','Cisco','Oracle','SAP','Lenovo','Acer','AMD'],correct:0,points:5},
+{id:'sil_gk4',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Marvel_Logo.svg/640px-Marvel_Logo.svg.png',q:'Name this brand',answers:['Marvel','DC Comics','Dark Horse','Image Comics','IDW','Valiant','Boom Studios','Dynamite','Top Cow','Wildstorm'],correct:0,points:5},
+{id:'sil_gk5',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ferrari-Logo.svg/440px-Ferrari-Logo.svg.png',q:'Name this brand',answers:['Ferrari','Lamborghini','Porsche','Maserati','Bugatti','McLaren','Aston Martin','Pagani','Koenigsegg','Alfa Romeo'],correct:0,points:5}
+],
+'modern-history':[
+{id:'sil_mh1',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/President_Barack_Obama.jpg/440px-President_Barack_Obama.jpg',q:'Name this person',answers:['Barack Obama','Joe Biden','Bill Clinton','George W. Bush','John F. Kennedy','Jimmy Carter','Ronald Reagan','George H.W. Bush','Gerald Ford','Lyndon B. Johnson'],correct:0,points:5},
+{id:'sil_mh2',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Winston_Churchill_1941_photo_by_Yousuf_Karsh.jpg/440px-Winston_Churchill_1941_photo_by_Yousuf_Karsh.jpg',q:'Name this person',answers:['Winston Churchill','Franklin D. Roosevelt','Charles de Gaulle','Dwight D. Eisenhower','Neville Chamberlain','Clement Attlee','Joseph Stalin','Benito Mussolini','Douglas MacArthur','Bernard Montgomery'],correct:0,points:5},
+{id:'sil_mh3',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Gorbachev_%28cropped%29.jpg/440px-Gorbachev_%28cropped%29.jpg',q:'Name this person',answers:['Mikhail Gorbachev','Boris Yeltsin','Leonid Brezhnev','Nikita Khrushchev','Vladimir Putin','Joseph Stalin','Andrei Gromyko','Yuri Andropov','Dmitry Medvedev','Konstantin Chernenko'],correct:0,points:5},
+{id:'sil_mh4',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Nelson_Mandela%2C_2000_%285%29.jpg/440px-Nelson_Mandela%2C_2000_%285%29.jpg',q:'Name this person',answers:['Nelson Mandela','Desmond Tutu','Kofi Annan','Martin Luther King Jr.','Malcolm X','Patrice Lumumba','Robert Mugabe','Kwame Nkrumah','Thabo Mbeki','Haile Selassie'],correct:0,points:5},
+{id:'sil_mh5',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Martin_Luther_King_-_March_on_Washington.jpg/440px-Martin_Luther_King_-_March_on_Washington.jpg',q:'Name this person',answers:['Martin Luther King Jr.','Malcolm X','Nelson Mandela','Jesse Jackson','Rosa Parks','John Lewis','Medgar Evers','Frederick Douglass','W.E.B. Du Bois','Booker T. Washington'],correct:0,points:5}
+]
+};
+
 /* ===== GLOBALS ===== */
 let db=null,fbOk=false;
 let player=null,userData=null;
@@ -788,11 +877,13 @@ const elapsed=Math.max(0,(Date.now()-qd.startedAt)/1000);
 const remaining=Math.max(0,20-elapsed);
 const pct=Math.max(0,(remaining/20)*100);
 const cat=CATEGORIES.find(c=>c.id===gs.selectedCategory);
+const isSil=!!qd.img;
 content=`<div class="game-header"><span class="game-round">Question ${(gs.currentQuestion||0)+1}/${CATEGORIES.length}</span><span class="game-category">${cat?cat.icon+' '+cat.name:''}</span></div>
 <div class="timer-bar-wrap"><div class="timer-bar-fill ${remaining<5?'urgent':''}" style="width:${pct}%"></div></div>
 <div class="timer-text">${Math.ceil(remaining)}s</div>
-<div class="question-card"><span class="question-points ${qd.points===5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${esc(qd.question)}</div></div>
-<div class="answers-grid">${qd.answers.map((a,i)=>`<button class="answer-btn ${hasAnswered?(myAnswer.answerIndex===i?'selected':'locked'):''}${hasAnswered?'disabled':''}" onclick="submitAnswer(${i})">${esc(a)}</button>`).join('')}</div>
+${isSil?`<div class="sil-card"><span class="question-points pts5">5pts</span><div class="sil-label">${esc(qd.question)}</div><img class="sil-img" src="${qd.img}" onerror="this.style.display='none'" alt="?"></div>`
+:`<div class="question-card"><span class="question-points ${qd.points===5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${esc(qd.question)}</div></div>`}
+<div class="${isSil?'answers-grid-10':'answers-grid'}">${qd.answers.map((a,i)=>`<button class="answer-btn ${hasAnswered?(myAnswer.answerIndex===i?'selected':'locked'):''}${hasAnswered?' disabled':''}" onclick="submitAnswer(${i})">${esc(a)}</button>`).join('')}</div>
 ${hasAnswered?'<div style="text-align:center;color:var(--text-dim);font-size:12px;margin-top:4px">Answer locked in!</div>':''}`;
 startTimerTick()}
 else if(phase==='showAnswer'){
@@ -802,9 +893,11 @@ const qIdx=gs.currentQuestion||0;
 if(lastSfxQuestion!==qIdx){lastSfxQuestion=qIdx;
 if(myAnswer&&myAnswer.answerIndex===qd.correctIndex)sfxCorrect();else sfxWrong()}
 const cat=CATEGORIES.find(c=>c.id===gs.selectedCategory);
+const isSil=!!qd.img;
 content=`<div class="game-header"><span class="game-round">Question ${(gs.currentQuestion||0)+1}/${CATEGORIES.length}</span><span class="game-category">${cat?cat.icon+' '+cat.name:''}</span></div>
-<div class="question-card"><span class="question-points ${qd.points===5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${esc(qd.question)}</div></div>
-<div class="answers-grid">${qd.answers.map((a,i)=>`<button class="answer-btn ${i===qd.correctIndex?'correct':'wrong'} locked">${esc(a)}${i===qd.correctIndex?' ✓':''}</button>`).join('')}</div>
+${isSil?`<div class="sil-card revealed"><span class="question-points pts5">5pts</span><div class="sil-label">${esc(qd.answers[qd.correctIndex])}</div><img class="sil-img revealed" src="${qd.img}" onerror="this.style.display='none'" alt=""></div>`
+:`<div class="question-card"><span class="question-points ${qd.points===5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${esc(qd.question)}</div></div>`}
+<div class="${isSil?'answers-grid-10':'answers-grid'}">${qd.answers.map((a,i)=>`<button class="answer-btn ${i===qd.correctIndex?'correct':'wrong'} locked">${esc(a)}${i===qd.correctIndex?' ✓':''}</button>`).join('')}</div>
 <div style="text-align:center;margin-top:6px;font-size:13px">${myAnswer&&myAnswer.answerIndex===qd.correctIndex?`<span style="color:var(--green)">Correct! +${qd.points}</span>`:`<span style="color:var(--red)">Wrong!</span>`}</div>`}
 else if(phase==='roundEnd'){
 content=`<div class="waiting-box"><div class="waiting-icon">📊</div><div>Next player picks!</div></div>`}
@@ -863,8 +956,13 @@ const gs=lobbyData.gameState;
 const cat=gs.selectedCategory;
 const used=gs.usedQuestionIds||[];
 let q=null;
-// Try API first for supported categories
-if(API_CATEGORIES.includes(cat)){
+// 40% chance of silhouette question
+const silPool=SILHOUETTE_QS[cat]||[];
+const availSil=silPool.filter(s=>!used.includes(s.id));
+if(availSil.length>0&&Math.random()<0.4){
+q=availSil[Math.floor(Math.random()*availSil.length)]}
+// Try API for supported categories
+if(!q&&API_CATEGORIES.includes(cat)){
 const apiQs=await fetchApiQuestions(cat,1);
 if(apiQs.length>0)q=apiQs[0]}
 // Fall back to hardcoded
@@ -875,13 +973,14 @@ if(available.length>0)q=available[Math.floor(Math.random()*available.length)]}
 if(!q){q={id:'fallback_'+Date.now(),q:'No more questions available!',answers:['True','False','Maybe','Skip'],correct:0,points:1}}
 const shuffled=shuffleAnswers(q);
 used.push(q.id);
+const qData={question:q.q,answers:shuffled.answers,correctIndex:shuffled.correctIndex,points:q.points,startedAt:Date.now()};
+if(q.img)qData.img=q.img;
 await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({
-phase:'showQuestion',
-currentQuestionData:{question:q.q,answers:shuffled.answers,correctIndex:shuffled.correctIndex,points:q.points,startedAt:Date.now()},
+phase:'showQuestion',currentQuestionData:qData,
 playerAnswers:null,usedQuestionIds:used})}
 
 function shuffleAnswers(q){
-const indices=[0,1,2,3];
+const indices=Array.from({length:q.answers.length},(_,i)=>i);
 for(let i=indices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[indices[i],indices[j]]=[indices[j],indices[i]]}
 const newAnswers=indices.map(i=>q.answers[i]);
 const newCorrect=indices.indexOf(q.correct);
