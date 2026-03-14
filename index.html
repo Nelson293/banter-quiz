@@ -88,7 +88,8 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer}
 
 /* ===== GAME ===== */
-.game-screen{padding:24px 40px 100px;display:flex;flex-direction:column;gap:14px;max-width:900px;margin:0 auto;width:100%}
+.game-screen{padding:24px 40px 100px 80px;display:flex;flex-direction:column;gap:14px;max-width:960px;margin:0 auto;width:100%;animation:phaseIn .35s ease-out}
+@keyframes phaseIn{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 .game-header{display:flex;justify-content:space-between;align-items:center}
 .game-round{font-size:13px;color:var(--text-dim);font-family:'JetBrains Mono',monospace}
 .game-category{font-size:14px;font-weight:700;color:var(--accent)}
@@ -199,22 +200,30 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .shop-item.owned .si-price{color:var(--green)}
 .shop-coins{font-size:14px;color:var(--gold);font-family:'JetBrains Mono',monospace;text-align:center;margin-bottom:10px}
 
-/* ===== SOUNDBOARD ===== */
-.soundboard-toggle{position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:2px solid var(--border);border-bottom:3px solid var(--depth-dark);background:var(--card);color:var(--text);font-size:20px;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;box-shadow:var(--iso-shadow-sm);transition:all .12s}
-.soundboard-toggle:hover{transform:translateY(-2px);box-shadow:var(--iso-shadow-md)}
-.soundboard-panel{position:fixed;bottom:70px;right:16px;width:200px;background:var(--card);border:1px solid var(--border);border-bottom:3px solid var(--depth-dark);border-radius:14px;padding:10px;z-index:90;box-shadow:var(--iso-shadow-lg);display:none}
-.soundboard-panel.open{display:block;animation:modalPop .2s ease-out}
-.sb-sound-btn{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card2);color:var(--text);font-family:'Fredoka',sans-serif;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:4px;transition:all .1s;text-align:left}
-.sb-sound-btn:hover{border-color:var(--accent-dim);background:rgba(124,92,255,.1)}
-.sb-sound-btn:disabled{opacity:.4;cursor:default}
+/* ===== LEFT SIDEBAR ===== */
+.game-sidebar{position:fixed;left:0;top:50%;transform:translateY(-50%);width:60px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;background:rgba(26,18,48,.9);border-right:2px solid var(--border);border-radius:0 16px 16px 0;z-index:80;box-shadow:var(--iso-shadow-md);max-height:80vh;overflow-y:auto}
+.sidebar-label{font-size:8px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.sidebar-divider{width:36px;height:1px;background:var(--border);margin:4px 0}
+.sidebar-btn{width:42px;height:42px;border-radius:10px;border:1px solid var(--border);background:var(--card2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;box-shadow:0 2px 0 var(--depth-dark);color:var(--text);position:relative}
+.sidebar-btn:hover{transform:translateY(-2px);box-shadow:0 4px 0 var(--depth-dark);border-color:var(--accent-dim)}
+.sidebar-btn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--depth-dark)}
+.sidebar-btn.power-up{border-color:var(--gold);background:rgba(255,215,0,.08)}
+.sidebar-btn.power-up:hover{background:rgba(255,215,0,.15)}
+.sidebar-btn.power-up.used{opacity:.3;cursor:default;pointer-events:none}
+.sidebar-btn .cooldown-ring{position:absolute;inset:0;border-radius:10px;border:2px solid var(--red);opacity:0;animation:cooldownFade 3s forwards}
+@keyframes cooldownFade{0%{opacity:.6}100%{opacity:0}}
 
-/* ===== EMOTE BAR ===== */
-.emote-bar{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px 0}
-.emote-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;box-shadow:0 2px 0 var(--depth-dark)}
-.emote-btn:hover{transform:translateY(-2px);box-shadow:0 4px 0 var(--depth-dark)}
-.emote-btn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--depth-dark)}
-.emote-float{position:fixed;pointer-events:none;font-size:32px;z-index:200;animation:emoteRise 1.5s ease-out forwards}
-@keyframes emoteRise{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(1.5)}}
+/* ===== SCREEN FLASH ===== */
+.screen-flash{position:fixed;inset:0;pointer-events:none;z-index:200;animation:flashPulse .4s ease-out forwards}
+.screen-flash.correct{background:radial-gradient(circle,rgba(126,217,87,.25),transparent 70%)}
+.screen-flash.wrong{background:radial-gradient(circle,rgba(255,77,77,.25),transparent 70%)}
+@keyframes flashPulse{0%{opacity:1}100%{opacity:0}}
+
+/* ===== PLAYER REACTIONS ===== */
+.pb-player.react-correct .pb-avatar-wrap{animation:avatarBounce .5s ease}
+.pb-player.react-wrong .pb-avatar-wrap{animation:avatarShake .4s ease}
+@keyframes avatarBounce{0%{transform:translateY(0)}30%{transform:translateY(-12px) scale(1.15)}60%{transform:translateY(-4px)}100%{transform:translateY(0)}}
+@keyframes avatarShake{0%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}100%{transform:translateX(0)}}
 
 /* ===== WAITING TEXT ===== */
 .waiting-box{text-align:center;padding:30px;color:var(--text-dim);font-size:14px}
@@ -627,7 +636,11 @@ if(lobbyRef){lobbyRef.off();lobbyRef=null}
 if(soundboardRef){soundboardRef.off();soundboardRef=null}
 if(emoteRef){emoteRef.off();emoteRef=null}
 if(gameTimer){clearInterval(gameTimer);gameTimer=null}
-soundboardOpen=false}
+soundboardOpen=false;advancing=false;
+const sb=document.getElementById('gameSidebar');if(sb)sb.remove();
+const bar=document.getElementById('playerBar');if(bar)bar.remove();
+const sbt=document.getElementById('sbToggle');if(sbt)sbt.remove();
+const sbp=document.getElementById('sbPanel');if(sbp)sbp.remove()}
 
 /* ===== AUTH SCREEN ===== */
 function renderAuth(mode='login'){
@@ -915,7 +928,9 @@ const qd=gs.currentQuestionData;if(!qd)return;
 const myAnswer=gs.playerAnswers&&gs.playerAnswers[sk(player)];
 const qIdx=gs.currentQuestion||0;
 if(lastSfxQuestion!==qIdx){lastSfxQuestion=qIdx;
-if(myAnswer&&myAnswer.answerIndex===qd.correctIndex)sfxCorrect();else sfxWrong()}
+const gotIt=myAnswer&&myAnswer.answerIndex===qd.correctIndex;
+if(gotIt){sfxCorrect();screenFlash('correct')}else{sfxWrong();screenFlash('wrong')}
+setTimeout(()=>showPlayerReactions(gs),200)}
 const cat=CATEGORIES.find(c=>c.id===gs.selectedCategory);
 const isSil=!!qd.img;
 const fastK=gs.fastestPlayer;
@@ -929,14 +944,39 @@ ${fastP?`<div style="text-align:center;margin-top:4px;font-size:12px;color:var(-
 else if(phase==='roundEnd'){
 content=`<div class="waiting-box"><div class="waiting-icon">📊</div><div>Next player picks!</div></div>`}
 
-document.getElementById('app').innerHTML=`<div class="game-screen">${content}${renderEmoteBar()}</div>${playerBarHTML}`;
-setupSoundboard();listenForEmotes()}
+document.getElementById('app').innerHTML=`<div class="game-screen">${content}</div>${playerBarHTML}`;
+// Remove old sidebar if exists, add new
+const oldSb=document.getElementById('gameSidebar');if(oldSb)oldSb.remove();
+document.body.insertAdjacentHTML('beforeend',renderSidebar());
+setupSoundboardListener();listenForEmotes()}
 
-function renderEmoteBar(){
-const owned=userData&&userData.purchasedEmotes?Object.keys(userData.purchasedEmotes):[];
-const defaultEmotes=['👍','👏'];
-const allEmotes=[...defaultEmotes,...SHOP_EMOTES.filter(e=>owned.includes(e.id)).map(e=>e.emoji)];
-return`<div class="emote-bar">${allEmotes.map(e=>`<button class="emote-btn" onclick="sendEmote('${e}')">${e}</button>`).join('')}</div>`}
+function renderSidebar(){
+const ownedEmotes=userData&&userData.purchasedEmotes?Object.keys(userData.purchasedEmotes):[];
+const defaultEmotes=['👍','👏','😂','💀'];
+const allEmotes=[...defaultEmotes,...SHOP_EMOTES.filter(e=>ownedEmotes.includes(e.id)).map(e=>e.emoji)];
+const ownedSounds=userData&&userData.purchasedSounds?Object.keys(userData.purchasedSounds):[];
+const gs=lobbyData&&lobbyData.gameState;
+const phase=gs?gs.phase:'';
+const showPowers=phase==='showQuestion';
+const used5050=gs&&gs.used5050&&gs.used5050[sk(player)];
+const usedDouble=gs&&gs.usedDouble&&gs.usedDouble[sk(player)];
+let html=`<div class="game-sidebar" id="gameSidebar">`;
+// Power-ups during questions
+if(showPowers){
+html+=`<div class="sidebar-label">Powers</div>`;
+html+=`<button class="sidebar-btn power-up ${used5050?'used':''}" onclick="usePower5050()" title="50/50 — Remove half the wrong answers">½</button>`;
+html+=`<button class="sidebar-btn power-up ${usedDouble?'used':''}" onclick="usePowerDouble()" title="Double Points — 2x points this question">2x</button>`;
+html+=`<div class="sidebar-divider"></div>`}
+// Emotes
+html+=`<div class="sidebar-label">Emotes</div>`;
+html+=allEmotes.map(e=>`<button class="sidebar-btn" onclick="sendEmote('${e}')">${e}</button>`).join('');
+// Sounds
+if(ownedSounds.length>0){
+html+=`<div class="sidebar-divider"></div><div class="sidebar-label">Sounds</div>`;
+html+=ownedSounds.map(id=>{const s=SHOP_SOUNDS.find(x=>x.id===id);
+return s?`<button class="sidebar-btn" onclick="playSound('${id}')" title="${s.name}">${s.emoji}</button>`:''}).join('')}
+html+=`</div>`;
+return html}
 
 function startTimerTick(){
 if(gameTimer)clearInterval(gameTimer);
@@ -1034,6 +1074,9 @@ const speed=v.answeredAt?((v.answeredAt-qd.startedAt)/1000):20;
 if(speed<5)pts+=1;
 // Streak bonus: 3+ streak gives +1
 if(curStreak>=2)pts+=1;
+// Double points power-up
+const usedDbl=gs.usedDouble||{};
+if(usedDbl[k])pts*=2;
 updates['players/'+k+'/score']=cur+pts;
 updates['players/'+k+'/streak']=curStreak+1;
 if(speed<fastestTime){fastestTime=speed;fastest=k}
@@ -1201,25 +1244,12 @@ const m=document.getElementById('profileModal');if(m)m.remove();
 renderMenu();showToast('Profile saved!','success')}
 
 /* ===== SOUNDBOARD ===== */
-function setupSoundboard(){
-if(currentScreen!=='game'||!lobbyCode)return;
-const owned=userData&&userData.purchasedSounds?Object.keys(userData.purchasedSounds):[];
-if(owned.length===0)return;
-if(!document.getElementById('sbToggle')){
-const toggle=document.createElement('button');
-toggle.className='soundboard-toggle';toggle.id='sbToggle';toggle.textContent='🔊';
-toggle.onclick=()=>{soundboardOpen=!soundboardOpen;const p=document.getElementById('sbPanel');if(p)p.classList.toggle('open',soundboardOpen)};
-document.body.appendChild(toggle);
-const panel=document.createElement('div');
-panel.className='soundboard-panel';panel.id='sbPanel';
-panel.innerHTML=owned.map(id=>{const s=SHOP_SOUNDS.find(x=>x.id===id);
-return s?`<button class="sb-sound-btn" onclick="playSound('${id}')">${s.emoji} ${s.name}</button>`:''}).join('');
-document.body.appendChild(panel)}
-if(!soundboardRef){
+function setupSoundboardListener(){
+if(!lobbyCode||soundboardRef)return;
 soundboardRef=db.ref('quiz/lobbies/'+lobbyCode+'/soundboard');
 soundboardRef.on('value',snap=>{
 const v=snap.val();if(!v)return;
-if(Date.now()-v.timestamp<2000)playSoundEffect(v.soundId)})}}
+if(Date.now()-v.timestamp<2000)playSoundEffect(v.soundId)})}
 
 async function playSound(id){
 if(Date.now()-lastSoundAt<5000){showToast('Wait before playing another sound!','error');return}
@@ -1262,6 +1292,50 @@ const em=document.createElement('div');
 em.className='pb-emote';em.textContent=emoji;
 el.querySelector('.pb-avatar-wrap').appendChild(em);
 setTimeout(()=>em.remove(),1800)}
+
+/* ===== POWER-UPS ===== */
+async function usePower5050(){
+if(!lobbyCode||!lobbyData)return;
+const gs=lobbyData.gameState;
+if(!gs||gs.phase!=='showQuestion')return;
+const qd=gs.currentQuestionData;if(!qd)return;
+if(gs.used5050&&gs.used5050[sk(player)])return;
+// Remove half the wrong answers visually
+const btns=document.querySelectorAll('.answers-grid .answer-btn, .answers-grid-10 .answer-btn');
+const wrongBtns=[];
+btns.forEach((b,i)=>{if(i!==qd.correctIndex)wrongBtns.push({el:b,idx:i})});
+const toRemove=wrongBtns.sort(()=>Math.random()-.5).slice(0,Math.floor(wrongBtns.length/2));
+toRemove.forEach(w=>{w.el.style.opacity='0.15';w.el.style.pointerEvents='none';w.el.style.transform='scale(0.9)'});
+sfxPick();
+await db.ref('quiz/lobbies/'+lobbyCode+'/gameState/used5050/'+sk(player)).set(true)}
+
+async function usePowerDouble(){
+if(!lobbyCode||!lobbyData)return;
+const gs=lobbyData.gameState;
+if(!gs||gs.phase!=='showQuestion')return;
+if(gs.usedDouble&&gs.usedDouble[sk(player)])return;
+sfxPick();
+await db.ref('quiz/lobbies/'+lobbyCode+'/gameState/usedDouble/'+sk(player)).set(true);
+showToast('Double Points activated!')}
+
+/* ===== SCREEN FLASH ===== */
+function screenFlash(type){
+const f=document.createElement('div');
+f.className='screen-flash '+type;
+document.body.appendChild(f);
+setTimeout(()=>f.remove(),500)}
+
+/* ===== PLAYER REACTIONS ===== */
+function showPlayerReactions(gs){
+if(!gs||!gs.playerAnswers||!gs.currentQuestionData)return;
+const bar=document.getElementById('playerBar');if(!bar)return;
+const qd=gs.currentQuestionData;
+Object.entries(gs.playerAnswers).forEach(([k,v])=>{
+if(!v)return;
+const el=bar.querySelector(`[data-pk="${k}"]`);if(!el)return;
+const correct=v.answerIndex===qd.correctIndex;
+el.classList.add(correct?'react-correct':'react-wrong');
+setTimeout(()=>{el.classList.remove('react-correct','react-wrong')},600)})}
 
 /* ===== TOAST ===== */
 function showToast(msg,type=''){
