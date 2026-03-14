@@ -10,7 +10,7 @@
 :root{--bg:#0f0a1a;--card:#1a1230;--card2:#241a40;--accent:#7c5cff;--accent-dim:#5a3fd4;--accent-glow:rgba(124,92,255,.3);--text:#f0eaff;--text-dim:#8a7aaa;--green:#7ed957;--red:#ff4d4d;--orange:#ffb347;--gold:#ffd700;--border:#3a2a60;--depth-dark:#0a0612;--depth-mid:#120e22;--iso-shadow-sm:3px 3px 0 var(--depth-dark);--iso-shadow-md:4px 4px 0 var(--depth-dark),5px 5px 0 rgba(0,0,0,.3);--iso-shadow-lg:4px 4px 0 var(--depth-dark),6px 6px 0 rgba(0,0,0,.35),8px 8px 0 rgba(0,0,0,.15);--ans-blue:#3b82f6;--ans-red:#ef4444;--ans-green:#22c55e;--ans-orange:#f59e0b}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg) 0%,#060412 100%);color:var(--text);min-height:100vh;overflow-x:hidden;background-image:linear-gradient(45deg,rgba(124,92,255,.015) 25%,transparent 25%),linear-gradient(-45deg,rgba(124,92,255,.015) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(124,92,255,.015) 75%),linear-gradient(-45deg,transparent 75%,rgba(124,92,255,.015) 75%);background-size:40px 40px;background-position:0 0,0 20px,20px -20px,-20px 0}
-#app{max-width:520px;margin:0 auto;position:relative;min-height:100vh;padding-bottom:20px}
+#app{max-width:1200px;margin:0 auto;position:relative;min-height:100vh;padding:20px 40px}
 
 /* ===== AUTH ===== */
 .auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center}
@@ -61,12 +61,12 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .menu-stat .sl{font-size:9px;color:var(--text-dim);margin-top:2px}
 
 /* ===== LOBBY ===== */
-.lobby-screen{padding:20px 16px;display:flex;flex-direction:column;gap:14px}
+.lobby-screen{padding:24px 40px;display:flex;flex-direction:column;gap:16px;max-width:900px;margin:0 auto;width:100%}
 .lobby-code-box{text-align:center;padding:20px;background:var(--card);border:2px solid var(--accent);border-bottom:5px solid var(--depth-dark);border-radius:16px;box-shadow:var(--iso-shadow-lg)}
 .lobby-code-label{font-size:12px;color:var(--text-dim);margin-bottom:4px}
 .lobby-code{font-size:42px;font-weight:800;color:var(--accent);letter-spacing:8px;font-family:'JetBrains Mono',monospace;text-shadow:0 0 20px var(--accent-glow)}
 .lobby-players-title{font-size:14px;font-weight:700;color:var(--text-dim)}
-.lobby-players{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lobby-players{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .lobby-player{padding:12px 8px;background:var(--card);border:1px solid var(--border);border-bottom:3px solid var(--depth-dark);border-radius:12px;text-align:center;box-shadow:var(--iso-shadow-sm);animation:playerJoin .3s ease-out}
 @keyframes playerJoin{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
 .lobby-player .lp-avatar{font-size:28px;display:flex;justify-content:center}
@@ -88,20 +88,20 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer}
 
 /* ===== GAME ===== */
-.game-screen{padding:16px;display:flex;flex-direction:column;gap:10px}
+.game-screen{padding:24px 40px;display:flex;flex-direction:column;gap:14px;max-width:900px;margin:0 auto;width:100%}
 .game-header{display:flex;justify-content:space-between;align-items:center}
 .game-round{font-size:13px;color:var(--text-dim);font-family:'JetBrains Mono',monospace}
 .game-category{font-size:14px;font-weight:700;color:var(--accent)}
 .timer-bar-wrap{width:100%;height:8px;background:var(--card);border-radius:4px;border:1px solid var(--border);border-bottom:2px solid var(--depth-dark);overflow:hidden;box-shadow:var(--iso-shadow-sm)}
 .timer-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:4px;transition:width .5s linear}
 .timer-bar-fill.urgent{background:linear-gradient(90deg,var(--red),var(--orange))}
-.question-card{background:var(--card);border:2px solid var(--border);border-bottom:5px solid var(--depth-dark);border-radius:16px;padding:20px;text-align:center;box-shadow:var(--iso-shadow-md);min-height:100px;display:flex;align-items:center;justify-content:center;position:relative}
+.question-card{background:var(--card);border:2px solid var(--border);border-bottom:5px solid var(--depth-dark);border-radius:16px;padding:28px 36px;text-align:center;box-shadow:var(--iso-shadow-md);min-height:120px;display:flex;align-items:center;justify-content:center;position:relative;font-size:18px}
 .question-text{font-size:18px;font-weight:700;line-height:1.4}
 .question-points{position:absolute;top:10px;right:12px;font-size:11px;padding:4px 8px;border-radius:8px;font-weight:700;font-family:'JetBrains Mono',monospace}
 .question-points.pts1{background:rgba(124,92,255,.15);color:var(--accent)}
 .question-points.pts5{background:rgba(255,215,0,.15);color:var(--gold);border:1px solid rgba(255,215,0,.3)}
-.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.answer-btn{padding:16px 12px;border:2px solid transparent;border-bottom:5px solid rgba(0,0,0,.3);border-radius:14px;color:white;font-size:14px;font-weight:700;font-family:'Fredoka',sans-serif;cursor:pointer;transition:all .1s;box-shadow:var(--iso-shadow-sm);text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center;gap:6px}
+.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answer-btn{padding:20px 16px;border:2px solid transparent;border-bottom:5px solid rgba(0,0,0,.3);border-radius:14px;color:white;font-size:16px;font-weight:700;font-family:'Fredoka',sans-serif;cursor:pointer;transition:all .1s;box-shadow:var(--iso-shadow-sm);text-align:center;min-height:70px;display:flex;align-items:center;justify-content:center;gap:6px}
 .answer-btn:nth-child(1){background:var(--ans-blue)}
 .answer-btn:nth-child(2){background:var(--ans-red)}
 .answer-btn:nth-child(3){background:var(--ans-green)}
@@ -119,8 +119,8 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .category-pick{display:flex;flex-direction:column;gap:12px;align-items:center}
 .pick-title{font-size:16px;font-weight:700;text-align:center}
 .pick-sub{font-size:13px;color:var(--text-dim);text-align:center}
-.category-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-.cat-btn{padding:16px 10px;border:2px solid var(--border);border-bottom:5px solid var(--depth-dark);border-radius:14px;background:var(--card);color:var(--text);cursor:pointer;font-family:'Fredoka',sans-serif;font-size:13px;font-weight:700;transition:all .12s;box-shadow:var(--iso-shadow-sm);display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%}
+.cat-btn{padding:20px 14px;border:2px solid var(--border);border-bottom:5px solid var(--depth-dark);border-radius:14px;background:var(--card);color:var(--text);cursor:pointer;font-family:'Fredoka',sans-serif;font-size:15px;font-weight:700;transition:all .12s;box-shadow:var(--iso-shadow-sm);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
 .cat-btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:var(--iso-shadow-md)}
 .cat-btn:active:not(:disabled){transform:translateY(2px);box-shadow:1px 1px 0 var(--depth-dark)}
 .cat-btn:disabled{opacity:.3;cursor:default}
@@ -694,8 +694,11 @@ const lobby=snap.val();
 if(!lobby){showToast('Lobby closed','error');showScreen('menu');return}
 lobbyData=lobby;
 isHost=(lobby.hostKey===sk(player));
-if(lobby.status==='playing'&&currentScreen==='lobby'){renderGame();return}
-if(lobby.status==='finished'&&currentScreen==='lobby'){renderResults();return}
+if(lobby.status==='playing'){
+if(currentScreen==='lobby')renderGame();
+else if(currentScreen==='game')updateGameUI(lobby);
+return}
+if(lobby.status==='finished'){renderResults();return}
 updateLobbyUI(lobby)})}
 
 function updateLobbyUI(lobby){
@@ -753,6 +756,9 @@ const phase=gs.phase;
 currentScreen='game';
 
 if(phase==='gameOver'){renderResults();return}
+
+// Host auto-advances when a non-host picks a category
+if(isHost&&phase==='pickCategory'&&gs.selectedCategory){hostShowNextQuestion();return}
 
 let content='';
 const sorted=Object.entries(players).filter(([k,v])=>v.connected!==false).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
