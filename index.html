@@ -864,6 +864,7 @@ const gs=lobby.gameState;if(!gs)return;
 const players=lobby.players||{};
 const phase=gs.phase;
 currentScreen='game';
+if(phase!=='showQuestion')hidden5050=[];
 
 if(phase==='gameOver'){renderResults();return}
 
@@ -948,7 +949,7 @@ document.getElementById('app').innerHTML=`<div class="game-screen">${content}</d
 // Remove old sidebar if exists, add new
 const oldSb=document.getElementById('gameSidebar');if(oldSb)oldSb.remove();
 document.body.insertAdjacentHTML('beforeend',renderSidebar());
-setupSoundboardListener();listenForEmotes()}
+setupSoundboardListener();listenForEmotes();apply5050()}
 
 function renderSidebar(){
 const ownedEmotes=userData&&userData.purchasedEmotes?Object.keys(userData.purchasedEmotes):[];
@@ -969,7 +970,8 @@ html+=`<button class="sidebar-btn power-up ${usedDouble?'used':''}" onclick="use
 html+=`<div class="sidebar-divider"></div>`}
 // Emotes
 html+=`<div class="sidebar-label">Emotes</div>`;
-html+=allEmotes.map(e=>`<button class="sidebar-btn" onclick="sendEmote('${e}')">${e}</button>`).join('');
+html+=allEmotes.map((e,i)=>`<button class="sidebar-btn" data-emote="${i}" onclick="sendEmoteByIdx(${i})">${e}</button>`).join('');
+window._sidebarEmotes=allEmotes;
 // Sounds
 if(ownedSounds.length>0){
 html+=`<div class="sidebar-divider"></div><div class="sidebar-label">Sounds</div>`;
@@ -1269,18 +1271,27 @@ osc.start();gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
 osc.stop(ctx.currentTime+0.5)}catch(e){}}
 
 /* ===== EMOTES ===== */
+function sendEmoteByIdx(idx){
+const emoji=window._sidebarEmotes&&window._sidebarEmotes[idx];
+if(emoji)sendEmote(emoji)}
+
 async function sendEmote(emoji){
-if(!lobbyCode)return;
+if(!lobbyCode||!player)return;
 if(Date.now()-lastEmoteAt<3000)return;
 lastEmoteAt=Date.now();
+// Show locally immediately
+showEmoteOnPlayer(player,emoji);
 await db.ref('quiz/lobbies/'+lobbyCode+'/emotes').push({playedBy:player,emoji,timestamp:Date.now()})}
 
 function listenForEmotes(){
 if(emoteRef||!lobbyCode)return;
+const startTime=Date.now();
 emoteRef=db.ref('quiz/lobbies/'+lobbyCode+'/emotes');
-emoteRef.orderByChild('timestamp').startAt(Date.now()).on('child_added',snap=>{
+emoteRef.on('child_added',snap=>{
 const d=snap.val();if(!d)return;
-showEmoteOnPlayer(d.playedBy,d.emoji);
+// Only show emotes from after we started listening, and not our own (we show locally)
+if(d.timestamp&&d.timestamp>=startTime-500&&d.playedBy!==player){
+showEmoteOnPlayer(d.playedBy,d.emoji)}
 snap.ref.remove()})}
 
 function showEmoteOnPlayer(playerName,emoji){
@@ -1294,20 +1305,26 @@ el.querySelector('.pb-avatar-wrap').appendChild(em);
 setTimeout(()=>em.remove(),1800)}
 
 /* ===== POWER-UPS ===== */
+let hidden5050=[];
 async function usePower5050(){
 if(!lobbyCode||!lobbyData)return;
 const gs=lobbyData.gameState;
 if(!gs||gs.phase!=='showQuestion')return;
 const qd=gs.currentQuestionData;if(!qd)return;
 if(gs.used5050&&gs.used5050[sk(player)])return;
-// Remove half the wrong answers visually
-const btns=document.querySelectorAll('.answers-grid .answer-btn, .answers-grid-10 .answer-btn');
-const wrongBtns=[];
-btns.forEach((b,i)=>{if(i!==qd.correctIndex)wrongBtns.push({el:b,idx:i})});
-const toRemove=wrongBtns.sort(()=>Math.random()-.5).slice(0,Math.floor(wrongBtns.length/2));
-toRemove.forEach(w=>{w.el.style.opacity='0.15';w.el.style.pointerEvents='none';w.el.style.transform='scale(0.9)'});
+// Pick which wrong answers to hide
+const wrongIdxs=[];
+for(let i=0;i<qd.answers.length;i++){if(i!==qd.correctIndex)wrongIdxs.push(i)}
+wrongIdxs.sort(()=>Math.random()-.5);
+hidden5050=wrongIdxs.slice(0,Math.floor(wrongIdxs.length/2));
+apply5050();
 sfxPick();
 await db.ref('quiz/lobbies/'+lobbyCode+'/gameState/used5050/'+sk(player)).set(true)}
+
+function apply5050(){
+if(hidden5050.length===0)return;
+const btns=document.querySelectorAll('.answers-grid .answer-btn, .answers-grid-10 .answer-btn');
+btns.forEach((b,i)=>{if(hidden5050.includes(i)){b.style.opacity='0.15';b.style.pointerEvents='none';b.style.transform='scale(0.9)'}})}
 
 async function usePowerDouble(){
 if(!lobbyCode||!lobbyData)return;
