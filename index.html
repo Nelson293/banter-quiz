@@ -259,183 +259,200 @@ const SHOP_EMOTES=[
 {id:'nerd',name:'Nerd',price:100,emoji:'🤓'}
 ];
 
+/* OpenTDB category mapping for API-sourced questions */
+const OPENTDB_MAP={
+'geography':22,'science':17,'movies-tv':11,'general-knowledge':9,'modern-history':23
+};
+const API_CATEGORIES=['geography','science','movies-tv','general-knowledge','modern-history'];
+const apiCache={};
+let apiSessionToken=null;
+
+async function getApiToken(){
+try{const r=await fetch('https://opentdb.com/api_token.php?command=request');const d=await r.json();
+if(d.response_code===0)apiSessionToken=d.token}catch(e){}}
+
+function decodeHTML(s){const t=document.createElement('textarea');t.innerHTML=s;return t.value}
+
+async function fetchApiQuestions(catId,amount){
+const otdbCat=OPENTDB_MAP[catId];
+if(!otdbCat)return[];
+const cacheKey=catId;
+if(!apiCache[cacheKey])apiCache[cacheKey]=[];
+if(apiCache[cacheKey].length>=amount)return apiCache[cacheKey].splice(0,amount);
+try{
+let url=`https://opentdb.com/api.php?amount=30&category=${otdbCat}&type=multiple`;
+if(apiSessionToken)url+=`&token=${apiSessionToken}`;
+const r=await fetch(url);const d=await r.json();
+if(d.response_code===0&&d.results){
+const qs=d.results.map((r,i)=>{
+const correct=decodeHTML(r.correct_answer);
+const wrong=r.incorrect_answers.map(a=>decodeHTML(a));
+const answers=[correct,...wrong];
+const pts=r.difficulty==='hard'?5:1;
+return{id:'api_'+catId+'_'+Date.now()+'_'+i,q:decodeHTML(r.question),answers,correct:0,points:pts}});
+apiCache[cacheKey].push(...qs)}
+}catch(e){}
+return apiCache[cacheKey].splice(0,Math.min(amount,apiCache[cacheKey].length))}
+
+/* Hardcoded questions for gaming categories (no API available) + fallback for others */
 const QUESTIONS={
 'league-of-legends':[
 {id:'lol1',q:"Which champion is known as 'The Unforgiven'?",answers:['Yasuo','Yone','Zed','Riven'],correct:0,points:1},
-{id:'lol2',q:"What is the name of the in-game currency used to buy champions?",answers:['Blue Essence','Gold','Riot Points','Mana'],correct:0,points:1},
+{id:'lol2',q:"What is the in-game currency used to buy champions?",answers:['Blue Essence','Gold','Riot Points','Mana'],correct:0,points:1},
 {id:'lol3',q:"Which lane does a Support typically play in?",answers:['Bot Lane','Mid Lane','Top Lane','Jungle'],correct:0,points:1},
 {id:'lol4',q:"What is Baron Nashor?",answers:['A powerful neutral monster','A champion','An item','A game mode'],correct:0,points:1},
-{id:'lol5',q:"Which champion has the ultimate ability 'Requiem'?",answers:['Karthus','Veigar','Brand','Xerath'],correct:0,points:5},
+{id:'lol5',q:"Which champion has the ultimate 'Requiem'?",answers:['Karthus','Veigar','Brand','Xerath'],correct:0,points:5},
 {id:'lol6',q:"What region is Jinx from?",answers:['Zaun','Noxus','Demacia','Piltover'],correct:0,points:1},
-{id:'lol7',q:"How many players are on each team in a standard game?",answers:['5','4','6','3'],correct:0,points:1},
-{id:'lol8',q:"Which item gives the most attack damage in the game?",answers:['Infinity Edge','Bloodthirster','Deaths Dance','Blade of the Ruined King'],correct:0,points:1},
+{id:'lol7',q:"How many players are on each team?",answers:['5','4','6','3'],correct:0,points:1},
+{id:'lol8',q:"Which item gives the most attack damage?",answers:['Infinity Edge','Bloodthirster','Deaths Dance','Blade of the Ruined King'],correct:0,points:1},
 {id:'lol9',q:"What year was League of Legends released?",answers:['2009','2010','2008','2011'],correct:0,points:1},
-{id:'lol10',q:"Which champion is a yordle and throws mushrooms?",answers:['Teemo','Lulu','Veigar','Tristana'],correct:0,points:1},
-{id:'lol11',q:"What is the name of the dragon that spawns at 35 minutes?",answers:['Elder Dragon','Baron Nashor','Rift Herald','Cloud Drake'],correct:0,points:5},
+{id:'lol10',q:"Which yordle throws mushrooms?",answers:['Teemo','Lulu','Veigar','Tristana'],correct:0,points:1},
+{id:'lol11',q:"What dragon spawns at 35 minutes?",answers:['Elder Dragon','Baron Nashor','Rift Herald','Cloud Drake'],correct:0,points:5},
 {id:'lol12',q:"Which champion says 'Hasagi!'?",answers:['Yasuo','Yone','Akali','Shen'],correct:0,points:1},
 {id:'lol13',q:"What does CS stand for?",answers:['Creep Score','Champion Score','Combat Stats','Critical Strike'],correct:0,points:1},
-{id:'lol14',q:"Which role typically starts at Red or Blue buff?",answers:['Jungler','ADC','Support','Mid Laner'],correct:0,points:1},
-{id:'lol15',q:"What is the maximum level a champion can reach in a game?",answers:['18','20','25','15'],correct:0,points:1},
-{id:'lol16',q:"Which champion can revive allies with their ultimate?",answers:['Zilean','Soraka','Lulu','Sona'],correct:0,points:5},
-{id:'lol17',q:"What is the Summoner spell that teleports you a short distance?",answers:['Flash','Teleport','Ghost','Ignite'],correct:0,points:1},
-{id:'lol18',q:"Which champion is known as 'The Nine-Tailed Fox'?",answers:['Ahri','Lux','Morgana','LeBlanc'],correct:0,points:1},
-{id:'lol19',q:"What is the tower structure called that protects the Nexus?",answers:['Inhibitor','Turret','Barracks','Keep'],correct:0,points:1},
-{id:'lol20',q:"Which champion was the first to be released after launch?",answers:['Xin Zhao','Diana','Darius','Vi'],correct:0,points:1}
+{id:'lol14',q:"Which role starts at Red or Blue buff?",answers:['Jungler','ADC','Support','Mid Laner'],correct:0,points:1},
+{id:'lol15',q:"Max level a champion can reach in a game?",answers:['18','20','25','15'],correct:0,points:1},
+{id:'lol16',q:"Which champion can revive allies with their ult?",answers:['Zilean','Soraka','Lulu','Sona'],correct:0,points:5},
+{id:'lol17',q:"Which Summoner spell teleports you a short distance?",answers:['Flash','Teleport','Ghost','Ignite'],correct:0,points:1},
+{id:'lol18',q:"Which champion is 'The Nine-Tailed Fox'?",answers:['Ahri','Lux','Morgana','LeBlanc'],correct:0,points:1},
+{id:'lol19',q:"What structure protects the Nexus?",answers:['Inhibitor','Turret','Barracks','Keep'],correct:0,points:1},
+{id:'lol20',q:"Which champion was first released after launch?",answers:['Xin Zhao','Diana','Darius','Vi'],correct:0,points:1},
+{id:'lol21',q:"What is the name of the shopkeeper on Summoner's Rift?",answers:['There is no named shopkeeper','Bob','Ornn','Doran'],correct:0,points:5},
+{id:'lol22',q:"Which champion has the passive 'Glory in Death'?",answers:['Sion','Karthus','Kog Maw','Anivia'],correct:0,points:1},
+{id:'lol23',q:"What role does Thresh primarily play?",answers:['Support','ADC','Mid','Jungle'],correct:0,points:1},
+{id:'lol24',q:"Which champion transforms between Mega and Mini forms?",answers:['Gnar','Nidalee','Elise','Jayce'],correct:0,points:1},
+{id:'lol25',q:"What is the jungle camp with two monsters called?",answers:['Krugs','Wolves','Raptors','Gromp'],correct:0,points:1},
+{id:'lol26',q:"Which champion is Lux's brother?",answers:['Garen','Darius','Jarvan','Xin Zhao'],correct:0,points:1},
+{id:'lol27',q:"What is the river objective that spawns before Baron?",answers:['Rift Herald','Scuttle Crab','Dragon','Gromp'],correct:0,points:1},
+{id:'lol28',q:"Which champion steals ultimates?",answers:['Sylas','Viego','Zed','LeBlanc'],correct:0,points:1},
+{id:'lol29',q:"What company made League of Legends?",answers:['Riot Games','Blizzard','Valve','Epic Games'],correct:0,points:1},
+{id:'lol30',q:"Which champion is known as 'The Blade Dancer'?",answers:['Irelia','Fiora','Katarina','Akali'],correct:0,points:1},
+{id:'lol31',q:"What is the respawn fountain area called?",answers:['Spawn','Fountain','Base','Nexus'],correct:0,points:1},
+{id:'lol32',q:"Which champion has a passive that turns them into an egg?",answers:['Anivia','Azir','Quinn','Xayah'],correct:0,points:5},
+{id:'lol33',q:"How many drakes spawn before the Elder Dragon?",answers:['4','3','5','6'],correct:0,points:1},
+{id:'lol34',q:"Which item is known for its spellvamp and is built from Hextech?",answers:['Hextech Gunblade','Hextech Rocketbelt','Hextech Alternator','Hextech Revolver'],correct:0,points:1},
+{id:'lol35',q:"What is Viego also known as?",answers:['The Ruined King','The Shadow King','The Dark Sovereign','The Fallen Prince'],correct:0,points:1},
+{id:'lol36',q:"Which support champion throws a lantern?",answers:['Thresh','Blitzcrank','Nautilus','Leona'],correct:0,points:1},
+{id:'lol37',q:"Which champion is a blind monk?",answers:['Lee Sin','Shen','Kennen','Akali'],correct:0,points:1},
+{id:'lol38',q:"What is the name of the 2021 League of Legends Netflix show?",answers:['Arcane','Ruination','Wild Rift','Legends'],correct:0,points:1},
+{id:'lol39',q:"Which ADC champion has a global ultimate called Destiny?",answers:['Twisted Fate','Jinx','Ashe','Ezreal'],correct:0,points:5},
+{id:'lol40',q:"What region is Nasus from?",answers:['Shurima','Ionia','Noxus','Targon'],correct:0,points:1},
+{id:'lol41',q:"Which champion collects souls to become stronger?",answers:['Thresh','Veigar','Nasus','Senna'],correct:0,points:1},
+{id:'lol42',q:"What is the name of Draven's brother?",answers:['Darius','Garen','Sett','Talon'],correct:0,points:1},
+{id:'lol43',q:"Which champion places boxes as traps?",answers:['Shaco','Teemo','Caitlyn','Jhin'],correct:0,points:1},
+{id:'lol44',q:"What is the maximum number of items (including boots) you can hold?",answers:['6','5','7','8'],correct:0,points:1},
+{id:'lol45',q:"Which champion is known as 'The Aspect of Twilight'?",answers:['Zoe','Diana','Leona','Pantheon'],correct:0,points:1},
+{id:'lol46',q:"What monster gives a team-wide buff when killed?",answers:['Baron Nashor','Elder Dragon','Rift Herald','Blue Sentinel'],correct:0,points:1},
+{id:'lol47',q:"Which champion has four guns?",answers:['Jhin','Graves','Lucian','Miss Fortune'],correct:0,points:5},
+{id:'lol48',q:"What lane is typically occupied by tanks and bruisers?",answers:['Top Lane','Bot Lane','Mid Lane','Jungle'],correct:0,points:1},
+{id:'lol49',q:"Which champion's ult pulls all enemies to a center point?",answers:['Orianna','Diana','Yone','Amumu'],correct:0,points:1},
+{id:'lol50',q:"What is the ranked tier above Platinum?",answers:['Emerald','Diamond','Gold','Master'],correct:0,points:1}
 ],
 'runescape':[
 {id:'rs1',q:"What is the maximum combat level in OSRS?",answers:['126','138','120','99'],correct:0,points:1},
 {id:'rs2',q:"Which skill lets you create runes?",answers:['Runecrafting','Magic','Crafting','Mining'],correct:0,points:1},
-{id:'rs3',q:"What colour is a Party Hat that is most valuable?",answers:['Blue','Red','White','Green'],correct:0,points:5},
-{id:'rs4',q:"Where do you go to fight the King Black Dragon?",answers:['Wilderness','Morytania','Karamja','Zeah'],correct:0,points:1},
-{id:'rs5',q:"What is the name of the free-to-play quest that involves a dragon?",answers:["Dragon Slayer","Cook's Assistant","Shield of Arrav","Demon Slayer"],correct:0,points:1},
+{id:'rs3',q:"What colour Party Hat is most valuable?",answers:['Blue','Red','White','Green'],correct:0,points:5},
+{id:'rs4',q:"Where do you fight the King Black Dragon?",answers:['Wilderness','Morytania','Karamja','Zeah'],correct:0,points:1},
+{id:'rs5',q:"Which free quest involves a dragon?",answers:["Dragon Slayer","Cook's Assistant","Shield of Arrav","Demon Slayer"],correct:0,points:1},
 {id:'rs6',q:"How many skills are in OSRS?",answers:['23','25','20','28'],correct:0,points:1},
 {id:'rs7',q:"Which city has the Grand Exchange?",answers:['Varrock','Falador','Lumbridge','Edgeville'],correct:0,points:1},
-{id:'rs8',q:"What level do you need to wear Rune armour?",answers:['40','50','30','60'],correct:0,points:1},
+{id:'rs8',q:"What level to wear Rune armour?",answers:['40','50','30','60'],correct:0,points:1},
 {id:'rs9',q:"Which boss drops the Twisted Bow?",answers:['Chambers of Xeric','Theatre of Blood','Zulrah','Vorkath'],correct:0,points:5},
 {id:'rs10',q:"What is the starting area called?",answers:['Tutorial Island','Lumbridge','Varrock','Al Kharid'],correct:0,points:1},
 {id:'rs11',q:"Which skill involves catching fish?",answers:['Fishing','Cooking','Hunter','Farming'],correct:0,points:1},
-{id:'rs12',q:"What is the highest tier of pickaxe?",answers:['Dragon','Rune','Crystal','Infernal'],correct:0,points:1},
-{id:'rs13',q:"Who is the owner of Lumbridge Castle?",answers:['Duke Horacio','King Roald','Sir Amik Varze','King Lathas'],correct:0,points:1},
-{id:'rs14',q:"What do you need to enter the Warriors Guild?",answers:['Combined Attack + Strength of 130','99 Attack','99 Strength','Quest Cape'],correct:0,points:5},
+{id:'rs12',q:"Highest tier pickaxe?",answers:['Dragon','Rune','Crystal','Infernal'],correct:0,points:1},
+{id:'rs13',q:"Who owns Lumbridge Castle?",answers:['Duke Horacio','King Roald','Sir Amik Varze','King Lathas'],correct:0,points:1},
+{id:'rs14',q:"What do you need to enter Warriors Guild?",answers:['Attack + Strength totalling 130','99 Attack','99 Strength','Quest Cape'],correct:0,points:5},
 {id:'rs15',q:"Which monster drops the Abyssal Whip?",answers:['Abyssal Demon','Greater Demon','Black Demon','Nechryael'],correct:0,points:1},
-{id:'rs16',q:"What prayer level do you need for Protect from Melee?",answers:['43','40','45','37'],correct:0,points:1},
+{id:'rs16',q:"Prayer level for Protect from Melee?",answers:['43','40','45','37'],correct:0,points:1},
 {id:'rs17',q:"Which tree gives the most Woodcutting XP?",answers:['Redwood','Magic','Yew','Teak'],correct:0,points:1},
-{id:'rs18',q:"What is the currency in RuneScape called?",answers:['Gold Pieces (GP)','Coins','Crowns','Gil'],correct:0,points:1},
+{id:'rs18',q:"What is the currency called?",answers:['Gold Pieces (GP)','Coins','Crowns','Gil'],correct:0,points:1},
 {id:'rs19',q:"Which area is known for PKing?",answers:['Wilderness','Morytania','Karamja','Tirannwn'],correct:0,points:1},
-{id:'rs20',q:"What year was Old School RuneScape released?",answers:['2013','2007','2010','2015'],correct:0,points:1}
-],
-'modern-history':[
-{id:'mh1',q:"In what year did World War II end?",answers:['1945','1944','1946','1943'],correct:0,points:1},
-{id:'mh2',q:"Who was the first person to walk on the Moon?",answers:['Neil Armstrong','Buzz Aldrin','Yuri Gagarin','John Glenn'],correct:0,points:1},
-{id:'mh3',q:"What year did the Berlin Wall fall?",answers:['1989','1991','1987','1990'],correct:0,points:1},
-{id:'mh4',q:"Which country was the first to grant women the right to vote?",answers:['New Zealand','Finland','Australia','United Kingdom'],correct:0,points:5},
-{id:'mh5',q:"Who was the British Prime Minister during most of WWII?",answers:['Winston Churchill','Neville Chamberlain','Clement Attlee','Anthony Eden'],correct:0,points:1},
-{id:'mh6',q:"What event triggered the start of World War I?",answers:['Assassination of Archduke Franz Ferdinand','Sinking of the Lusitania','Invasion of Poland','Treaty of Versailles'],correct:0,points:1},
-{id:'mh7',q:"In what year did the Titanic sink?",answers:['1912','1910','1914','1908'],correct:0,points:1},
-{id:'mh8',q:"Which US President resigned due to the Watergate scandal?",answers:['Richard Nixon','Lyndon B. Johnson','Gerald Ford','Jimmy Carter'],correct:0,points:1},
-{id:'mh9',q:"What was the name of the first satellite launched into space?",answers:['Sputnik 1','Explorer 1','Vostok 1','Apollo 1'],correct:0,points:1},
-{id:'mh10',q:"Who painted the ceiling of the Sistine Chapel?",answers:['Michelangelo','Leonardo da Vinci','Raphael','Donatello'],correct:0,points:1},
-{id:'mh11',q:"What year did the Cold War officially end?",answers:['1991','1989','1990','1985'],correct:0,points:1},
-{id:'mh12',q:"Which country dropped atomic bombs on Japan?",answers:['United States','United Kingdom','Soviet Union','China'],correct:0,points:1},
-{id:'mh13',q:"Who was the leader of the Soviet Union during the Cuban Missile Crisis?",answers:['Nikita Khrushchev','Joseph Stalin','Leonid Brezhnev','Mikhail Gorbachev'],correct:0,points:5},
-{id:'mh14',q:"What year did India gain independence from Britain?",answers:['1947','1950','1945','1952'],correct:0,points:1},
-{id:'mh15',q:"Who delivered the famous 'I Have a Dream' speech?",answers:['Martin Luther King Jr.','Malcolm X','Rosa Parks','Barack Obama'],correct:0,points:1},
-{id:'mh16',q:"What was the Manhattan Project?",answers:['Development of the atomic bomb','A spy program','A space mission','A peace treaty'],correct:0,points:1},
-{id:'mh17',q:"Which war was fought between North and South Korea?",answers:['Korean War','Vietnam War','Cold War','Gulf War'],correct:0,points:1},
-{id:'mh18',q:"What year did the September 11 attacks occur?",answers:['2001','2000','2002','1999'],correct:0,points:1},
-{id:'mh19',q:"Who was the first President of the United States?",answers:['George Washington','John Adams','Thomas Jefferson','Abraham Lincoln'],correct:0,points:1},
-{id:'mh20',q:"What treaty ended World War I?",answers:['Treaty of Versailles','Treaty of Paris','Treaty of Ghent','Treaty of Westphalia'],correct:0,points:5}
+{id:'rs20',q:"What year was OSRS released?",answers:['2013','2007','2010','2015'],correct:0,points:1},
+{id:'rs21',q:"What is the max level for any skill?",answers:['99','120','100','200'],correct:0,points:1},
+{id:'rs22',q:"Which quest gives Barrows Gloves?",answers:['Recipe for Disaster','Desert Treasure','Monkey Madness','Regicide'],correct:0,points:5},
+{id:'rs23',q:"What boss is found in the Karuulm Slayer Dungeon?",answers:['Alchemical Hydra','Cerberus','Kraken','Thermonuclear Smoke Devil'],correct:0,points:1},
+{id:'rs24',q:"Which spell teleports you to Lumbridge?",answers:['Home Teleport','Lumbridge Teleport','Varrock Teleport','Bones to Peaches'],correct:0,points:1},
+{id:'rs25',q:"What is the fastest way to train Prayer?",answers:['Dragon Bones at Gilded Altar','Burying Big Bones','Ensouled Heads','Ectofuntus'],correct:0,points:1},
+{id:'rs26',q:"Which minigame rewards you with a Fighter Torso?",answers:['Barbarian Assault','Castle Wars','Pest Control','Soul Wars'],correct:0,points:1},
+{id:'rs27',q:"What item do you need to charge a Trident of the Seas?",answers:['Zulrah Scales','Death Runes','Fire Runes','Coins'],correct:0,points:1},
+{id:'rs28',q:"Which god does Saradomin represent?",answers:['Order and Light','Chaos','Balance','Darkness'],correct:0,points:1},
+{id:'rs29',q:"What is the NPC Hans known for?",answers:['Telling you your account age','Selling capes','Starting quests','Trading items'],correct:0,points:1},
+{id:'rs30',q:"Which boss drops the Dragon Warhammer?",answers:['Lizardman Shaman','Vorkath','Zulrah','Cerberus'],correct:0,points:1},
+{id:'rs31',q:"What Slayer level do you need to kill Cave Horrors?",answers:['58','55','60','65'],correct:0,points:5},
+{id:'rs32',q:"Which quest unlocks Piety?",answers:['Kings Ransom','Desert Treasure','Monkey Madness II','Song of the Elves'],correct:0,points:1},
+{id:'rs33',q:"What do you use to telegrab items?",answers:['Telekinetic Grab','Superheat','Alchemy','Enchant'],correct:0,points:1},
+{id:'rs34',q:"Which city is the capital of Kandarin?",answers:['Ardougne','Camelot','Yanille','Seers Village'],correct:0,points:1},
+{id:'rs35',q:"What Agility course is best at level 60?",answers:['Seers Village','Canifis','Falador','Pollnivneach'],correct:0,points:1},
+{id:'rs36',q:"Which raid was released first?",answers:['Chambers of Xeric','Theatre of Blood','Tombs of Amascut','None'],correct:0,points:1},
+{id:'rs37',q:"What is the Fire Cape dropped by?",answers:['TzTok-Jad','TzKal-Zuk','Ket-Zek','Jal-Yt'],correct:0,points:1},
+{id:'rs38',q:"How much does a bond cost in GP approximately?",answers:['5-8 million','1 million','10 million','500k'],correct:0,points:1},
+{id:'rs39',q:"Which potion boosts all combat stats?",answers:['Super Combat','Overload','Ranging Potion','Saradomin Brew'],correct:0,points:1},
+{id:'rs40',q:"What is the name of the fairy ring code for Zanaris?",answers:['BKS','ALP','CKR','DLR'],correct:0,points:5},
+{id:'rs41',q:"Which quest is required to use the Ancient Spellbook?",answers:['Desert Treasure','Lunar Diplomacy','Temple of Ikov','The Fremennik Trials'],correct:0,points:1},
+{id:'rs42',q:"What level Mining to mine Runite ore?",answers:['85','80','90','75'],correct:0,points:1},
+{id:'rs43',q:"Which NPC runs the Duel Arena?",answers:['Mubariz','Osman','Ali Morrisane','Shantay'],correct:0,points:1},
+{id:'rs44',q:"What is the Infernal Cape obtained from?",answers:['The Inferno','Fight Caves','Chambers of Xeric','Theatre of Blood'],correct:0,points:1},
+{id:'rs45',q:"Which pet comes from the Fishing skill?",answers:['Heron','Beaver','Rock Golem','Rift Guardian'],correct:0,points:1},
+{id:'rs46',q:"What does AGS stand for?",answers:['Armadyl Godsword','Ancient God Sword','Abyssal Great Sword','Adamant Gold Scimitar'],correct:0,points:1},
+{id:'rs47',q:"Which quest unlocks Monkey Madness I reward?",answers:['Dragon Scimitar','Barrows Gloves','Void Armour','Dragon Defender'],correct:0,points:1},
+{id:'rs48',q:"What is Vorkath weak to?",answers:['Ranged with Ruby/Diamond bolts','Melee','Magic','Nothing'],correct:0,points:1},
+{id:'rs49',q:"Which kingdom can you manage for rewards?",answers:['Miscellania','Kourend','Varlamore','Morytania'],correct:0,points:1},
+{id:'rs50',q:"What is the max total level in OSRS?",answers:['2277','2376','2000','2500'],correct:0,points:5}
 ],
 'world-of-warcraft':[
-{id:'wow1',q:"What are the two main factions in WoW?",answers:['Alliance and Horde','Light and Dark','Order and Chaos','Empire and Republic'],correct:0,points:1},
-{id:'wow2',q:"Which race is exclusive to the Horde?",answers:['Orc','Human','Night Elf','Dwarf'],correct:0,points:1},
+{id:'wow1',q:"What are the two main factions?",answers:['Alliance and Horde','Light and Dark','Order and Chaos','Empire and Republic'],correct:0,points:1},
+{id:'wow2',q:"Which race is Horde exclusive?",answers:['Orc','Human','Night Elf','Dwarf'],correct:0,points:1},
 {id:'wow3',q:"What is the name of the Lich King?",answers:['Arthas Menethil','Thrall','Illidan','Sylvanas'],correct:0,points:1},
-{id:'wow4',q:"What year was World of Warcraft originally released?",answers:['2004','2003','2005','2006'],correct:0,points:1},
-{id:'wow5',q:"What is the capital city of the Alliance?",answers:['Stormwind','Ironforge','Darnassus','Exodar'],correct:0,points:1},
-{id:'wow6',q:"Which expansion introduced the Death Knight class?",answers:['Wrath of the Lich King','Burning Crusade','Cataclysm','Mists of Pandaria'],correct:0,points:1},
-{id:'wow7',q:"What is the max level in the original WoW (Classic)?",answers:['60','70','80','50'],correct:0,points:1},
-{id:'wow8',q:"Who is the Warchief that says 'Lok-tar Ogar'?",answers:['Thrall','Garrosh','Sylvanas','Voljin'],correct:0,points:5},
-{id:'wow9',q:"What profession lets you create potions?",answers:['Alchemy','Herbalism','Enchanting','Inscription'],correct:0,points:1},
-{id:'wow10',q:"Which raid boss is found in Molten Core?",answers:['Ragnaros','Onyxia','Nefarion','Cthun'],correct:0,points:1},
-{id:'wow11',q:"What is Hearthstone named after in WoW?",answers:['The Hearthstone item that teleports you','A tavern','A spell','A quest'],correct:0,points:1},
+{id:'wow4',q:"What year was WoW released?",answers:['2004','2003','2005','2006'],correct:0,points:1},
+{id:'wow5',q:"Capital city of the Alliance?",answers:['Stormwind','Ironforge','Darnassus','Exodar'],correct:0,points:1},
+{id:'wow6',q:"Which expansion introduced Death Knights?",answers:['Wrath of the Lich King','Burning Crusade','Cataclysm','Mists of Pandaria'],correct:0,points:1},
+{id:'wow7',q:"Max level in Classic WoW?",answers:['60','70','80','50'],correct:0,points:1},
+{id:'wow8',q:"Which Warchief says 'Lok-tar Ogar'?",answers:['Thrall','Garrosh','Sylvanas','Vol jin'],correct:0,points:5},
+{id:'wow9',q:"Which profession lets you create potions?",answers:['Alchemy','Herbalism','Enchanting','Inscription'],correct:0,points:1},
+{id:'wow10',q:"Which boss is in Molten Core?",answers:['Ragnaros','Onyxia','Nefarian','C Thun'],correct:0,points:1},
+{id:'wow11',q:"What is Hearthstone named after?",answers:['The item that teleports you home','A tavern','A spell','A quest'],correct:0,points:1},
 {id:'wow12',q:"Which expansion featured Pandaren?",answers:['Mists of Pandaria','Warlords of Draenor','Legion','Cataclysm'],correct:0,points:1},
-{id:'wow13',q:"What class can only be played by Night Elves and Blood Elves originally?",answers:['Demon Hunter','Death Knight','Monk','Druid'],correct:0,points:5},
-{id:'wow14',q:"What is the Horde capital city?",answers:['Orgrimmar','Thunder Bluff','Undercity','Silvermoon'],correct:0,points:1},
-{id:'wow15',q:"Which character betrayed the Alliance and became the Lich King?",answers:['Arthas','Uther','Jaina','Medivh'],correct:0,points:1},
+{id:'wow13',q:"Which class was originally only Night Elves and Blood Elves?",answers:['Demon Hunter','Death Knight','Monk','Druid'],correct:0,points:5},
+{id:'wow14',q:"Horde capital city?",answers:['Orgrimmar','Thunder Bluff','Undercity','Silvermoon'],correct:0,points:1},
+{id:'wow15',q:"Who became the Lich King?",answers:['Arthas','Uther','Jaina','Medivh'],correct:0,points:1},
 {id:'wow16',q:"What do you ride to travel faster?",answers:['Mounts','Boats','Portals','Griffons'],correct:0,points:1},
-{id:'wow17',q:"What is the name of the dragon aspect of magic?",answers:['Malygos','Alexstrasza','Ysera','Nozdormu'],correct:0,points:1},
-{id:'wow18',q:"Which expansion added flying mounts?",answers:['The Burning Crusade','Wrath of the Lich King','Cataclysm','Classic'],correct:0,points:1},
+{id:'wow17',q:"Dragon Aspect of Magic?",answers:['Malygos','Alexstrasza','Ysera','Nozdormu'],correct:0,points:1},
+{id:'wow18',q:"Which expansion added flying?",answers:['The Burning Crusade','Wrath of the Lich King','Cataclysm','Classic'],correct:0,points:1},
 {id:'wow19',q:"What does PvP stand for?",answers:['Player vs Player','Power vs Power','Play vs Play','Person vs Person'],correct:0,points:1},
-{id:'wow20',q:"Who destroyed Theramore?",answers:['Garrosh Hellscream','Sylvanas','Deathwing','Arthas'],correct:0,points:5}
+{id:'wow20',q:"Who destroyed Theramore?",answers:['Garrosh Hellscream','Sylvanas','Deathwing','Arthas'],correct:0,points:5},
+{id:'wow21',q:"Which class can tank, heal, and DPS?",answers:['Paladin','Warrior','Mage','Rogue'],correct:0,points:1},
+{id:'wow22',q:"What is the Undead capital city?",answers:['Undercity','Silvermoon','Orgrimmar','Thunder Bluff'],correct:0,points:1},
+{id:'wow23',q:"Which raid is found in Blackrock Mountain?",answers:['Blackwing Lair','Karazhan','Naxxramas','Ulduar'],correct:0,points:1},
+{id:'wow24',q:"What planet do the Draenei come from?",answers:['Argus','Draenor','Azeroth','Outland'],correct:0,points:1},
+{id:'wow25',q:"Which city has the Auction House in Classic Alliance?",answers:['Ironforge','Stormwind','Darnassus','Exodar'],correct:0,points:1},
+{id:'wow26',q:"What is the name of Sylvanas Windrunner's sister?",answers:['Alleria','Jaina','Tyrande','Valeera'],correct:0,points:1},
+{id:'wow27',q:"What class uses Energy as a resource?",answers:['Rogue','Warrior','Paladin','Shaman'],correct:0,points:1},
+{id:'wow28',q:"Which boss says 'You are not prepared!'?",answers:['Illidan Stormrage','Arthas','Ragnaros','Deathwing'],correct:0,points:1},
+{id:'wow29',q:"What is the name of the Lich King's sword?",answers:['Frostmourne','Ashbringer','Thunderfury','Sulfuras'],correct:0,points:1},
+{id:'wow30',q:"Which race has the racial 'Will of the Forsaken'?",answers:['Undead','Orc','Troll','Blood Elf'],correct:0,points:1},
+{id:'wow31',q:"What is the primary stat for Hunters?",answers:['Agility','Strength','Intellect','Stamina'],correct:0,points:1},
+{id:'wow32',q:"Which expansion destroyed Azeroth's landscape?",answers:['Cataclysm','Wrath of the Lich King','Legion','Battle for Azeroth'],correct:0,points:1},
+{id:'wow33',q:"What is the Darkmoon Faire?",answers:['A monthly carnival event','A raid','A PvP arena','A dungeon'],correct:0,points:1},
+{id:'wow34',q:"Which zone is the Tauren starting area?",answers:['Mulgore','Durotar','Tirisfal Glades','Elwynn Forest'],correct:0,points:1},
+{id:'wow35',q:"What does DPS stand for?",answers:['Damage Per Second','Dual Power Strike','Direct Player Score','Defence Power Stat'],correct:0,points:1},
+{id:'wow36',q:"Which class can use stealth?",answers:['Rogue','Warrior','Mage','Shaman'],correct:0,points:1},
+{id:'wow37',q:"Who is the dragon that destroyed the world in Cataclysm?",answers:['Deathwing','Malygos','Alexstrasza','Onyxia'],correct:0,points:1},
+{id:'wow38',q:"What legendary weapon drops from Thunderaan?",answers:['Thunderfury','Frostmourne','Ashbringer','Sulfuras'],correct:0,points:5},
+{id:'wow39',q:"Which expansion introduced Monks?",answers:['Mists of Pandaria','Wrath of the Lich King','Legion','Cataclysm'],correct:0,points:1},
+{id:'wow40',q:"What currency is used in PvP?",answers:['Honor','Gold','Valor','Conquest'],correct:0,points:1},
+{id:'wow41',q:"Which city floats in the sky in Wrath?",answers:['Dalaran','Shattrath','Silvermoon','Exodar'],correct:0,points:1},
+{id:'wow42',q:"What is the max number of players in a standard raid?",answers:['25','40','10','20'],correct:0,points:1},
+{id:'wow43',q:"Which expansion took place on Draenor?",answers:['Warlords of Draenor','The Burning Crusade','Cataclysm','Legion'],correct:0,points:1},
+{id:'wow44',q:"What is Bolvar Fordragon's role?",answers:['The new Lich King','King of Stormwind','A Paladin trainer','A raid boss'],correct:0,points:5},
+{id:'wow45',q:"Which class can transform into animals?",answers:['Druid','Shaman','Hunter','Warlock'],correct:0,points:1},
+{id:'wow46',q:"What is the name of the Horde Zeppelin system?",answers:['Zeppelin Towers','Horde Air','Sky Riders','Wind Runners'],correct:0,points:1},
+{id:'wow47',q:"Which dungeon is in Stormwind?",answers:['The Stockade','Deadmines','Scarlet Monastery','Scholomance'],correct:0,points:1},
+{id:'wow48',q:"What is the currency used to buy gems and enchants?",answers:['Gold','Justice Points','Badges','Emblems'],correct:0,points:1},
+{id:'wow49',q:"Which boss is at the end of the Deadmines?",answers:['Edwin VanCleef','Hogger','Ragnaros','Onyxia'],correct:0,points:1},
+{id:'wow50',q:"What is the name of Thrall's real name?",answers:['Go el','Durotan','Grommash','Garrosh'],correct:0,points:5}
 ],
-'geography':[
-{id:'geo1',q:"What is the capital of Australia?",answers:['Canberra','Sydney','Melbourne','Perth'],correct:0,points:1},
-{id:'geo2',q:"Which is the longest river in the world?",answers:['Nile','Amazon','Mississippi','Yangtze'],correct:0,points:1},
-{id:'geo3',q:"What is the smallest country in the world?",answers:['Vatican City','Monaco','San Marino','Liechtenstein'],correct:0,points:1},
-{id:'geo4',q:"Which continent has the most countries?",answers:['Africa','Asia','Europe','South America'],correct:0,points:1},
-{id:'geo5',q:"What is the capital of Canada?",answers:['Ottawa','Toronto','Vancouver','Montreal'],correct:0,points:1},
-{id:'geo6',q:"Which ocean is the largest?",answers:['Pacific','Atlantic','Indian','Arctic'],correct:0,points:1},
-{id:'geo7',q:"Mount Everest is located in which mountain range?",answers:['Himalayas','Andes','Alps','Rockies'],correct:0,points:1},
-{id:'geo8',q:"Which country has the most time zones?",answers:['France','Russia','United States','China'],correct:0,points:5},
-{id:'geo9',q:"What is the driest continent on Earth?",answers:['Antarctica','Africa','Australia','Asia'],correct:0,points:5},
-{id:'geo10',q:"Which country is known as the Land of the Rising Sun?",answers:['Japan','China','South Korea','Thailand'],correct:0,points:1},
-{id:'geo11',q:"What is the capital of Brazil?",answers:['Brasilia','Rio de Janeiro','Sao Paulo','Salvador'],correct:0,points:1},
-{id:'geo12',q:"Which desert is the largest hot desert?",answers:['Sahara','Arabian','Gobi','Kalahari'],correct:0,points:1},
-{id:'geo13',q:"How many continents are there?",answers:['7','6','5','8'],correct:0,points:1},
-{id:'geo14',q:"What is the tallest waterfall in the world?",answers:['Angel Falls','Niagara Falls','Victoria Falls','Iguazu Falls'],correct:0,points:1},
-{id:'geo15',q:"Which country has the largest population?",answers:['India','China','United States','Indonesia'],correct:0,points:1},
-{id:'geo16',q:"What is the capital of New Zealand?",answers:['Wellington','Auckland','Christchurch','Hamilton'],correct:0,points:1},
-{id:'geo17',q:"Which river flows through London?",answers:['Thames','Seine','Danube','Rhine'],correct:0,points:1},
-{id:'geo18',q:"What is the largest island in the world?",answers:['Greenland','Borneo','Madagascar','New Guinea'],correct:0,points:1},
-{id:'geo19',q:"Which country is shaped like a boot?",answers:['Italy','Portugal','Chile','Norway'],correct:0,points:1},
-{id:'geo20',q:"What is the capital of Turkey?",answers:['Ankara','Istanbul','Izmir','Antalya'],correct:0,points:5}
-],
-'science':[
-{id:'sci1',q:"What is the chemical symbol for gold?",answers:['Au','Ag','Fe','Go'],correct:0,points:1},
-{id:'sci2',q:"How many bones are in the adult human body?",answers:['206','208','204','210'],correct:0,points:1},
-{id:'sci3',q:"What planet is known as the Red Planet?",answers:['Mars','Venus','Jupiter','Mercury'],correct:0,points:1},
-{id:'sci4',q:"What is the speed of light approximately?",answers:['300,000 km/s','150,000 km/s','500,000 km/s','1,000,000 km/s'],correct:0,points:1},
-{id:'sci5',q:"What gas do plants absorb from the atmosphere?",answers:['Carbon Dioxide','Oxygen','Nitrogen','Hydrogen'],correct:0,points:1},
-{id:'sci6',q:"What is the hardest natural substance on Earth?",answers:['Diamond','Titanium','Quartz','Sapphire'],correct:0,points:1},
-{id:'sci7',q:"How many planets are in our solar system?",answers:['8','9','7','10'],correct:0,points:1},
-{id:'sci8',q:"What is the powerhouse of the cell?",answers:['Mitochondria','Nucleus','Ribosome','Golgi Body'],correct:0,points:1},
-{id:'sci9',q:"What element has the atomic number 1?",answers:['Hydrogen','Helium','Lithium','Carbon'],correct:0,points:1},
-{id:'sci10',q:"What is the closest star to Earth?",answers:['The Sun','Proxima Centauri','Alpha Centauri','Sirius'],correct:0,points:1},
-{id:'sci11',q:"What is the chemical formula for water?",answers:['H2O','CO2','NaCl','O2'],correct:0,points:1},
-{id:'sci12',q:"Which planet has the most moons?",answers:['Saturn','Jupiter','Uranus','Neptune'],correct:0,points:5},
-{id:'sci13',q:"What force keeps us on the ground?",answers:['Gravity','Magnetism','Friction','Inertia'],correct:0,points:1},
-{id:'sci14',q:"What is the largest organ in the human body?",answers:['Skin','Liver','Brain','Heart'],correct:0,points:1},
-{id:'sci15',q:"How many chromosomes do humans have?",answers:['46','48','44','42'],correct:0,points:1},
-{id:'sci16',q:"What is the boiling point of water in Celsius?",answers:['100','90','110','120'],correct:0,points:1},
-{id:'sci17',q:"Who developed the theory of relativity?",answers:['Albert Einstein','Isaac Newton','Nikola Tesla','Stephen Hawking'],correct:0,points:1},
-{id:'sci18',q:"What type of animal is a dolphin?",answers:['Mammal','Fish','Reptile','Amphibian'],correct:0,points:1},
-{id:'sci19',q:"What is the most abundant gas in Earth\'s atmosphere?",answers:['Nitrogen','Oxygen','Carbon Dioxide','Argon'],correct:0,points:5},
-{id:'sci20',q:"How long does it take light from the Sun to reach Earth?",answers:['About 8 minutes','About 1 minute','About 30 minutes','About 1 second'],correct:0,points:1}
-],
-'movies-tv':[
-{id:'mt1',q:"Who directed Jurassic Park?",answers:['Steven Spielberg','James Cameron','Ridley Scott','George Lucas'],correct:0,points:1},
-{id:'mt2',q:"What is the highest-grossing film of all time?",answers:['Avatar','Avengers: Endgame','Titanic','Star Wars: The Force Awakens'],correct:0,points:1},
-{id:'mt3',q:"Which TV show features dragons and the Iron Throne?",answers:['Game of Thrones','The Witcher','Lord of the Rings','Vikings'],correct:0,points:1},
-{id:'mt4',q:"Who plays Jack Sparrow in Pirates of the Caribbean?",answers:['Johnny Depp','Orlando Bloom','Brad Pitt','Robert Downey Jr.'],correct:0,points:1},
-{id:'mt5',q:"What year was the first Star Wars film released?",answers:['1977','1980','1975','1983'],correct:0,points:1},
-{id:'mt6',q:"Which actor played the Joker in The Dark Knight?",answers:['Heath Ledger','Jack Nicholson','Jared Leto','Joaquin Phoenix'],correct:0,points:1},
-{id:'mt7',q:"What is the name of the hobbit played by Elijah Wood?",answers:['Frodo','Sam','Pippin','Merry'],correct:0,points:1},
-{id:'mt8',q:"Which animated film features a clownfish named Marlin?",answers:['Finding Nemo','Finding Dory','Shark Tale','The Little Mermaid'],correct:0,points:1},
-{id:'mt9',q:"In Breaking Bad, what is Walter White's street name?",answers:['Heisenberg','The Cook','Blue Sky','Danger'],correct:0,points:1},
-{id:'mt10',q:"What is the name of the fictional country in Black Panther?",answers:['Wakanda','Zamunda','Genovia','Latveria'],correct:0,points:1},
-{id:'mt11',q:"Who said 'I\'ll be back' in The Terminator?",answers:['Arnold Schwarzenegger','Sylvester Stallone','Bruce Willis','Harrison Ford'],correct:0,points:1},
-{id:'mt12',q:"What TV show is set in Hawkins, Indiana with a girl named Eleven?",answers:['Stranger Things','The OA','Dark','Supernatural'],correct:0,points:1},
-{id:'mt13',q:"Which film won the Academy Award for Best Picture in 2020?",answers:['Parasite','1917','Joker','Once Upon a Time in Hollywood'],correct:0,points:5},
-{id:'mt14',q:"What is Darth Vader's real name?",answers:['Anakin Skywalker','Luke Skywalker','Obi-Wan Kenobi','Palpatine'],correct:0,points:1},
-{id:'mt15',q:"In The Office (US), what is the name of the paper company?",answers:['Dunder Mifflin','Sabre','Michael Scott Paper Company','Wernham Hogg'],correct:0,points:1},
-{id:'mt16',q:"Which Marvel superhero is also known as Tony Stark?",answers:['Iron Man','Captain America','Thor','Spider-Man'],correct:0,points:1},
-{id:'mt17',q:"What year was the first Harry Potter film released?",answers:['2001','2000','2002','1999'],correct:0,points:1},
-{id:'mt18',q:"Who directed Inception and Interstellar?",answers:['Christopher Nolan','Denis Villeneuve','Ridley Scott','David Fincher'],correct:0,points:1},
-{id:'mt19',q:"What is the name of the kingdom in Frozen?",answers:['Arendelle','Corona','Far Far Away','Duloc'],correct:0,points:5},
-{id:'mt20',q:"Which TV show features the phrase 'Winter is Coming'?",answers:['Game of Thrones','The Last of Us','Vikings','The Witcher'],correct:0,points:1}
-],
-'general-knowledge':[
-{id:'gk1',q:"How many sides does a hexagon have?",answers:['6','5','7','8'],correct:0,points:1},
-{id:'gk2',q:"What is the most spoken language in the world?",answers:['English','Mandarin Chinese','Spanish','Hindi'],correct:0,points:5},
-{id:'gk3',q:"How many cards are in a standard deck?",answers:['52','48','54','50'],correct:0,points:1},
-{id:'gk4',q:"What colour are emeralds?",answers:['Green','Blue','Red','Purple'],correct:0,points:1},
-{id:'gk5',q:"Which planet is closest to the Sun?",answers:['Mercury','Venus','Earth','Mars'],correct:0,points:1},
-{id:'gk6',q:"What is the largest mammal in the world?",answers:['Blue Whale','Elephant','Giraffe','Hippopotamus'],correct:0,points:1},
-{id:'gk7',q:"How many strings does a standard guitar have?",answers:['6','4','8','5'],correct:0,points:1},
-{id:'gk8',q:"What is sushi traditionally wrapped in?",answers:['Seaweed','Rice Paper','Lettuce','Banana Leaf'],correct:0,points:1},
-{id:'gk9',q:"What sport is played at Wimbledon?",answers:['Tennis','Cricket','Football','Rugby'],correct:0,points:1},
-{id:'gk10',q:"How many minutes are in one hour?",answers:['60','100','45','90'],correct:0,points:1},
-{id:'gk11',q:"What is the currency of Japan?",answers:['Yen','Won','Yuan','Ringgit'],correct:0,points:1},
-{id:'gk12',q:"Which animal is known as the King of the Jungle?",answers:['Lion','Tiger','Elephant','Gorilla'],correct:0,points:1},
-{id:'gk13',q:"What is the main ingredient in guacamole?",answers:['Avocado','Tomato','Lime','Pepper'],correct:0,points:1},
-{id:'gk14',q:"How many Olympic rings are there?",answers:['5','4','6','7'],correct:0,points:1},
-{id:'gk15',q:"What does 'www' stand for in a website?",answers:['World Wide Web','Web World Wide','Wide World Web','World Web Wide'],correct:0,points:1},
-{id:'gk16',q:"Which country invented pizza?",answers:['Italy','Greece','United States','France'],correct:0,points:1},
-{id:'gk17',q:"What is the fastest land animal?",answers:['Cheetah','Lion','Horse','Greyhound'],correct:0,points:1},
-{id:'gk18',q:"How many teeth does an adult human typically have?",answers:['32','28','30','36'],correct:0,points:1},
-{id:'gk19',q:"What is the national animal of Scotland?",answers:['Unicorn','Lion','Stag','Eagle'],correct:0,points:5},
-{id:'gk20',q:"What does USB stand for?",answers:['Universal Serial Bus','United System Bus','Ultra Speed Bridge','Universal System Base'],correct:0,points:1}
-]
+'geography':[], 'science':[], 'movies-tv':[], 'general-knowledge':[], 'modern-history':[]
 };
 
 /* ===== GLOBALS ===== */
@@ -832,11 +849,18 @@ async function hostShowNextQuestion(){
 if(!isHost||!lobbyCode)return;
 const gs=lobbyData.gameState;
 const cat=gs.selectedCategory;
-const pool=QUESTIONS[cat]||[];
 const used=gs.usedQuestionIds||[];
-const available=pool.filter(q=>!used.includes(q.id));
-if(available.length===0)return;
-const q=available[Math.floor(Math.random()*available.length)];
+let q=null;
+// Try API first for supported categories
+if(API_CATEGORIES.includes(cat)){
+const apiQs=await fetchApiQuestions(cat,1);
+if(apiQs.length>0)q=apiQs[0]}
+// Fall back to hardcoded
+if(!q){
+const pool=QUESTIONS[cat]||[];
+const available=pool.filter(p=>!used.includes(p.id));
+if(available.length>0)q=available[Math.floor(Math.random()*available.length)]}
+if(!q){q={id:'fallback_'+Date.now(),q:'No more questions available!',answers:['True','False','Maybe','Skip'],correct:0,points:1}}
 const shuffled=shuffleAnswers(q);
 used.push(q.id);
 await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({
@@ -1094,6 +1118,7 @@ document.body.appendChild(c);setTimeout(()=>c.remove(),4000)}}
 /* ===== INIT ===== */
 function init(){
 initFB();
+getApiToken();
 try{
 const ses=JSON.parse(localStorage.getItem('quizSession'));
 if(ses&&ses.name&&ses.pwHash){autoLogin(ses.name,ses.pwHash);return}}catch(e){}
