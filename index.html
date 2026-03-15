@@ -120,6 +120,7 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .sil-card{background:var(--card);border:2px solid var(--gold);border-bottom:5px solid rgba(255,215,0,.4);border-radius:16px;padding:20px;text-align:center;box-shadow:0 0 20px rgba(255,215,0,.15),var(--iso-shadow-md);position:relative;display:flex;flex-direction:column;align-items:center;gap:10px}
 .sil-label{font-size:20px;font-weight:800;color:var(--gold)}
 .sil-img{width:220px;height:280px;object-fit:cover;border-radius:12px;filter:blur(12px) brightness(0.15) saturate(0);transition:filter .6s ease}
+.sil-img.no-blur{filter:none;width:300px;height:220px;object-fit:cover}
 .sil-img.revealed{filter:none}
 .sil-card.revealed{border-color:var(--green)}
 .answers-grid-10{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
@@ -1044,6 +1045,14 @@ if(phase==='gameOver'){renderResults();return}
 // Host auto-advances when a non-host picks a category
 if(isHost&&phase==='pickCategory'&&gs.selectedCategory){hostShowNextQuestion();return}
 
+// Host auto-resolves steal when someone submits a correct answer
+if(isHost&&phase==='steal'){
+const qd=gs.currentQuestionData;
+const steals=gs.stealAnswers||{};
+if(qd&&Object.keys(steals).length>0){
+const hasCorrectSteal=Object.values(steals).some(v=>v&&v.answerIndex===qd.correctIndex);
+if(hasCorrectSteal){hostResolveSteal();return}}}
+
 // Host auto-advances when all players have answered
 if(isHost&&phase==='showQuestion'){
 const connPlayers=Object.keys(players).filter(k=>players[k].connected!==false);
@@ -1112,7 +1121,7 @@ content=`<div class="game-header"><span class="game-round">Question ${(gs.curren
 ${myStreak>=2?`<div class="combo-display active"><div class="combo-num">${myStreak}x</div><div class="combo-label">Streak</div></div>`:''}
 <div class="timer-bar-wrap"><div class="timer-bar-fill ${remaining<5?'urgent':''}" style="width:${pct}%"></div></div>
 <div class="timer-text">${Math.ceil(remaining)}s</div>
-${isSil?`<div class="sil-card"><span class="question-points pts5">${qd.points}pts</span><div class="sil-label">${esc(qd.question)}</div><img class="sil-img" src="${qd.img}" onerror="this.style.display='none';this.parentElement.querySelector('.sil-label').textContent='🖼️ '+this.parentElement.querySelector('.sil-label').textContent+' (image failed to load)'" alt="?"></div>`
+${isSil?`<div class="sil-card"><span class="question-points pts5">${qd.points}pts</span><div class="sil-label">${esc(qd.question)}</div><img class="sil-img ${qd.noBlur?'no-blur':''}" src="${qd.img}" onerror="this.style.display='none';this.parentElement.querySelector('.sil-label').textContent='🖼️ '+this.parentElement.querySelector('.sil-label').textContent+' (image failed to load)'" alt="?"></div>`
 :`<div class="question-card"><span class="question-points ${qd.points>=5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${qd.blindRound?'🙈 ???':esc(qd.question)}</div></div>`}
 <div class="${isSil?'answers-grid-10':'answers-grid'}">${qd.answers.map((a,i)=>`<button class="answer-btn ${hasAnswered?(myAnswer.answerIndex===i?'selected':'locked'):''}${hasAnswered?' disabled':''}" onclick="submitAnswer(${i})">${esc(a)}</button>`).join('')}</div>
 ${hasAnswered?'<div style="text-align:center;color:var(--text-dim);font-size:12px;margin-top:4px">Answer locked in!</div>':''}`;
@@ -1275,7 +1284,9 @@ if(!q){q={id:'fallback_'+Date.now(),q:'No more questions available!',answers:['T
 const shuffled=shuffleAnswers(q);
 used.push(q.id);
 const qData={question:q.q,answers:shuffled.answers,correctIndex:shuffled.correctIndex,points:q.points,startedAt:Date.now()};
-if(q.img)qData.img=q.img;
+if(q.img){qData.img=q.img;
+const gamingCats=['league-of-legends','runescape','world-of-warcraft'];
+if(!gamingCats.includes(cat))qData.noBlur=true}
 // 20% chance of random event (not on first question)
 const qNum=gs.currentQuestion||0;
 if(qNum>0&&Math.random()<0.2){
@@ -1325,8 +1336,9 @@ updates['players/'+k+'/streak']=0}});
 if(!anyCorrect&&Object.keys(answers).length>0){
 updates['gameState/phase']='steal';
 updates['gameState/stealAnswers']=null;
+advancing=false;
 await db.ref('quiz/lobbies/'+lobbyCode).update(updates);
-// Give 10s for steal, then advance
+// Give 10s for steal, then auto-resolve
 setTimeout(()=>{if(isHost&&lobbyData&&lobbyData.gameState&&lobbyData.gameState.phase==='steal')hostResolveSteal()},10000);
 return}
 if(fastest)updates['gameState/fastestPlayer']=fastest;
@@ -1336,14 +1348,16 @@ await db.ref('quiz/lobbies/'+lobbyCode).update(updates);
 setTimeout(()=>{showReactionCam(lobbyData.gameState,lobbyData.players)},500);
 setTimeout(()=>hostAfterAnswer(),4000)})}
 
+let stealResolving=false;
 async function hostResolveSteal(){
-if(!isHost||!lobbyCode)return;
-const gs=lobbyData.gameState;if(!gs)return;
-const qd=gs.currentQuestionData;if(!qd)return;
+if(!isHost||!lobbyCode||stealResolving)return;
+stealResolving=true;
+const gs=lobbyData.gameState;if(!gs){stealResolving=false;return}
+const qd=gs.currentQuestionData;if(!qd){stealResolving=false;return}
 const steals=gs.stealAnswers||{};
 const players=lobbyData.players||{};
 const updates={};
-// Find first correct steal
+// Find first correct steal (earliest answerer)
 let stealWinner=null;
 Object.entries(steals).sort((a,b)=>(a[1].answeredAt||0)-(b[1].answeredAt||0)).forEach(([k,v])=>{
 if(!stealWinner&&v&&v.answerIndex===qd.correctIndex){
@@ -1351,10 +1365,13 @@ stealWinner=k;
 const cur=players[k]?players[k].score||0:0;
 updates['players/'+k+'/score']=cur+qd.points*2;
 updates['players/'+k+'/streak']=(players[k]?players[k].streak||0:0)+1}});
-updates['gameState/phase']='showAnswer';
 if(stealWinner)updates['gameState/fastestPlayer']=stealWinner;
+showDrumroll(async()=>{
+updates['gameState/phase']='showAnswer';
 await db.ref('quiz/lobbies/'+lobbyCode).update(updates);
-setTimeout(()=>hostAfterAnswer(),3000)}
+if(stealWinner){showToast(`${players[stealWinner]?players[stealWinner].displayName||players[stealWinner].name:'Someone'} stole it! +${qd.points*2}pts`,'success')}
+else{showToast('Nobody stole it!','error')}
+setTimeout(()=>{stealResolving=false;hostAfterAnswer()},3500)})}
 
 async function hostAfterAnswer(){
 if(!isHost||!lobbyCode)return;
