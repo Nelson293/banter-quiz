@@ -240,6 +240,82 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 .toast.success{border-color:var(--green);color:var(--green)}
 .toast.error{border-color:var(--red);color:var(--red)}
 @keyframes toastSlide{0%{transform:translateX(-50%) translateY(-60px);opacity:0}10%{transform:translateX(-50%) translateY(0);opacity:1}85%{transform:translateX(-50%) translateY(0);opacity:1}100%{transform:translateX(-50%) translateY(-60px);opacity:0}}
+
+/* ===== LOBBY CHAT ===== */
+.lobby-chat{background:var(--card);border:2px solid var(--border);border-bottom:4px solid var(--depth-dark);border-radius:14px;padding:12px;box-shadow:var(--iso-shadow-sm);max-height:200px;display:flex;flex-direction:column}
+.chat-messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;max-height:130px;margin-bottom:8px;scroll-behavior:smooth}
+.chat-msg{font-size:12px;line-height:1.3;padding:2px 0}
+.chat-msg .chat-name{font-weight:700;color:var(--accent);margin-right:4px}
+.chat-msg .chat-text{color:var(--text)}
+.chat-msg.system{color:var(--text-dim);font-style:italic;font-size:11px}
+.chat-input-row{display:flex;gap:6px}
+.chat-input-row input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Fredoka',sans-serif;font-size:12px;outline:none}
+.chat-input-row input:focus{border-color:var(--accent)}
+.chat-input-row button{padding:6px 12px;border:none;border-radius:8px;background:var(--accent);color:white;font-family:'Fredoka',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+
+/* ===== TAUNTS ===== */
+.taunt-popup{position:fixed;top:30%;left:50%;transform:translateX(-50%);background:var(--card);border:2px solid var(--accent);border-bottom:5px solid var(--depth-dark);border-radius:16px;padding:16px 28px;z-index:300;animation:tauntIn .4s ease-out forwards;box-shadow:var(--iso-shadow-lg);text-align:center;max-width:400px}
+.taunt-popup .taunt-from{font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.taunt-popup .taunt-text{font-size:20px;font-weight:800;color:var(--accent)}
+@keyframes tauntIn{0%{opacity:0;transform:translateX(-50%) scale(0.5) rotate(-5deg)}50%{transform:translateX(-50%) scale(1.1) rotate(2deg)}100%{opacity:1;transform:translateX(-50%) scale(1) rotate(0deg)}}
+
+/* ===== DRUMROLL ===== */
+.drumroll-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:250;display:flex;align-items:center;justify-content:center}
+.drumroll-text{font-size:64px;font-weight:800;color:var(--gold);text-shadow:0 0 40px rgba(255,215,0,.5),0 4px 0 var(--depth-dark);animation:drumPulse .5s ease-in-out infinite alternate}
+@keyframes drumPulse{0%{transform:scale(0.9)}100%{transform:scale(1.1)}}
+
+/* ===== REACTION CAM ===== */
+.reaction-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:280;display:flex;flex-direction:column;gap:8px;animation:reactionSlide .5s ease-out;pointer-events:none}
+.reaction-row{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--card);border:2px solid var(--border);border-radius:12px;box-shadow:var(--iso-shadow-md);animation:reactionFade 2.5s ease-out forwards;white-space:nowrap}
+.reaction-row.correct-r{border-color:var(--green)}
+.reaction-row.wrong-r{border-color:var(--red)}
+.reaction-row .r-avatar{width:28px;height:28px}
+.reaction-row .r-name{font-weight:700;font-size:13px}
+.reaction-row .r-text{font-size:12px;font-style:italic;color:var(--text-dim)}
+@keyframes reactionSlide{0%{opacity:0;transform:translate(-50%,-50%) translateY(30px)}100%{opacity:1;transform:translate(-50%,-50%) translateY(0)}}
+@keyframes reactionFade{0%,70%{opacity:1}100%{opacity:0}}
+
+/* ===== MVP AWARDS ===== */
+.mvp-section{width:100%;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.mvp-card{background:var(--card);border:2px solid var(--gold);border-bottom:4px solid rgba(255,215,0,.3);border-radius:12px;padding:10px 14px;text-align:center;min-width:130px;box-shadow:0 0 12px rgba(255,215,0,.1),var(--iso-shadow-sm)}
+.mvp-card .mvp-icon{font-size:24px}
+.mvp-card .mvp-title{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px}
+.mvp-card .mvp-name{font-size:12px;font-weight:700;margin-top:2px}
+
+/* ===== DIFFICULTY VOTE ===== */
+.diff-vote{display:flex;gap:10px;justify-content:center;margin:10px 0}
+.diff-btn{padding:12px 20px;border:2px solid var(--border);border-bottom:4px solid var(--depth-dark);border-radius:12px;background:var(--card);color:var(--text);font-family:'Fredoka',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .12s;box-shadow:var(--iso-shadow-sm)}
+.diff-btn:hover{transform:translateY(-2px);box-shadow:var(--iso-shadow-md)}
+.diff-btn.selected{border-color:var(--accent);background:rgba(124,92,255,.1)}
+.diff-btn .diff-icon{font-size:20px;display:block;margin-bottom:2px}
+
+/* ===== CUSTOM Q MODAL ===== */
+.custom-q-form{display:flex;flex-direction:column;gap:8px;text-align:left;max-height:300px;overflow-y:auto}
+.custom-q-form input,.custom-q-form textarea{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Fredoka',sans-serif;font-size:13px;outline:none;width:100%}
+.custom-q-form textarea{resize:vertical;min-height:40px}
+
+/* ===== LEADERBOARD ===== */
+.lb-list{width:100%;display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-bottom:3px solid var(--depth-dark);border-radius:12px;box-shadow:var(--iso-shadow-sm)}
+.lb-row .lb-rank{font-size:16px;font-weight:800;color:var(--text-dim);width:30px;text-align:center}
+.lb-row .lb-name{flex:1;font-weight:700;font-size:14px}
+.lb-row .lb-stat{font-size:13px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace}
+
+/* ===== THEME TOGGLE ===== */
+.theme-ocean{--bg:#0a1628;--card:#121e38;--card2:#1a2a4a;--accent:#3b82f6;--accent-dim:#2563eb;--accent-glow:rgba(59,130,246,.3);--border:#2a3a5a;--depth-dark:#060e1a;--depth-mid:#0e1826}
+.theme-crimson{--bg:#1a0a0a;--card:#2a1218;--card2:#3a1a22;--accent:#ef4444;--accent-dim:#dc2626;--accent-glow:rgba(239,68,68,.3);--border:#4a2a30;--depth-dark:#0a0406;--depth-mid:#160a0e}
+.theme-emerald{--bg:#0a1a0f;--card:#122a18;--card2:#1a3a22;--accent:#22c55e;--accent-dim:#16a34a;--accent-glow:rgba(34,197,94,.3);--border:#2a4a30;--depth-dark:#040a06;--depth-mid:#0a160e}
+.theme-sunset{--bg:#1a130a;--card:#2a1e12;--card2:#3a2a1a;--accent:#f59e0b;--accent-dim:#d97706;--accent-glow:rgba(245,158,11,.3);--border:#4a3a20;--depth-dark:#0a0804;--depth-mid:#16120a}
+
+/* ===== MUSIC TOGGLE ===== */
+.music-toggle{position:fixed;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:16px;cursor:pointer;z-index:90;display:none;align-items:center;justify-content:center;box-shadow:var(--iso-shadow-sm)}
+.music-toggle.visible{display:flex}
+
+/* ===== STEAL ===== */
+.steal-banner{text-align:center;padding:16px;animation:phaseIn .35s ease-out}
+.steal-banner .steal-title{font-size:18px;font-weight:800;color:var(--red);margin-bottom:8px}
+.steal-btn{padding:14px 28px;border:2px solid var(--gold);border-bottom:4px solid rgba(255,215,0,.4);border-radius:14px;background:rgba(255,215,0,.08);color:var(--gold);font-family:'Fredoka',sans-serif;font-size:16px;font-weight:800;cursor:pointer;animation:stealPulse 1s infinite;box-shadow:0 0 16px rgba(255,215,0,.15)}
+@keyframes stealPulse{0%,100%{box-shadow:0 0 16px rgba(255,215,0,.15)}50%{box-shadow:0 0 24px rgba(255,215,0,.3)}}
 </style>
 </head>
 <body>
@@ -567,7 +643,20 @@ let currentScreen='auth';
 let lobbyCode=null,lobbyRef=null,lobbyData=null;
 let isHost=false;
 let gameTimer=null,timerStarted=0,lastSfxQuestion=-1,advancing=false;
+let chatRef=null,tauntRef=null,musicPlaying=false,bgMusic=null;
+let currentTheme=localStorage.getItem('quizTheme')||'';
 let soundboardOpen=false;
+
+const TAUNTS=['Too easy! 😏','Lucky guess! 🍀','You\'re clueless! 🤡','Get good! 💪','Big brain time! 🧠','Absolute bot! 🤖','Not even close! 😂','That was free! 🎁','Sit down! 🪑','Bruh moment 💀'];
+const CORRECT_REACTIONS=['knew that instantly 🧠','is on fire!','barely broke a sweat','smurfing right now 😎','built different'];
+const WRONG_REACTIONS=['is sweating 😰','didn\'t have a clue','panicked and guessed','needs to study 📚','bruh moment 💀'];
+
+const SHOP_THEMES=[
+{id:'ocean',name:'Ocean',class:'theme-ocean',price:200,preview:'🌊'},
+{id:'crimson',name:'Crimson',class:'theme-crimson',price:200,preview:'🔴'},
+{id:'emerald',name:'Emerald',class:'theme-emerald',price:200,preview:'💚'},
+{id:'sunset',name:'Sunset',class:'theme-sunset',price:200,preview:'🌅'}
+];
 let lastSoundAt=0,lastEmoteAt=0;
 let soundboardRef=null,emoteRef=null;
 
@@ -635,6 +724,8 @@ function cleanupListeners(){
 if(lobbyRef){lobbyRef.off();lobbyRef=null}
 if(soundboardRef){soundboardRef.off();soundboardRef=null}
 if(emoteRef){emoteRef.off();emoteRef=null}
+if(chatRef){chatRef.off();chatRef=null}
+if(tauntRef){tauntRef.off();tauntRef=null}
 if(gameTimer){clearInterval(gameTimer);gameTimer=null}
 soundboardOpen=false;advancing=false;
 const sb=document.getElementById('gameSidebar');if(sb)sb.remove();
@@ -725,6 +816,8 @@ document.getElementById('app').innerHTML=`<div class="menu-screen">
 <div class="menu-btn" onclick="showJoinModal()"><span class="btn-icon">🚪</span>Join Lobby</div>
 <div class="menu-btn" onclick="showShop()"><span class="btn-icon">🛒</span>Shop</div>
 <div class="menu-btn" onclick="showProfile()"><span class="btn-icon">👤</span>Profile</div>
+<div class="menu-btn" onclick="showLeaderboard()"><span class="btn-icon">🏆</span>Leaderboard</div>
+<div class="menu-btn" onclick="toggleMusic()"><span class="btn-icon" id="menuMusicIcon">${bgMusic&&bgMusic.playing?'🔇':'🎵'}</span>Music</div>
 </div>
 <div class="menu-stats">
 <div class="menu-stat"><div class="sv">${u.gamesPlayed||0}</div><div class="sl">Games</div></div>
@@ -821,10 +914,16 @@ document.getElementById('app').innerHTML=`<div class="lobby-screen">
 ${players.map(p=>`<div class="lobby-player ${lobby.hostKey===sk(p.name)?'host':''}"><div class="lp-avatar">${avatarOrFallback(p.avatar,36)}</div><div class="lp-name">${esc(p.displayName||p.name)}${lobby.hostKey===sk(p.name)?' 👑':''}</div></div>`).join('')}
 ${Array(empties).fill('<div class="lobby-empty">Empty</div>').join('')}
 </div>
+<div class="lobby-chat" id="lobbyChat">
+<div class="chat-messages" id="chatMsgs"></div>
+<div class="chat-input-row"><input id="chatInput" placeholder="Type a message..." maxlength="100" onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">Send</button></div>
+</div>
 <div class="lobby-btns">
 ${isHost?`<button class="btn-primary" ${players.length>=2?'':'disabled'} onclick="startGame()">Start Game</button>`:'<div class="waiting-box"><span class="waiting-dots">Waiting for host to start</span></div>'}
+${isHost?`<button class="btn-primary" style="background:var(--gold);color:#1a1625" onclick="showCustomQModal()">+ Custom Q</button>`:''}
 <button class="btn-danger" onclick="leaveLobby()">Leave</button>
-</div></div>`}
+</div></div>`;
+listenChat()}
 
 async function leaveLobby(){
 if(!lobbyCode||!player)return;
@@ -900,9 +999,11 @@ const isPicker=(picker===sk(player));
 const pickerName=players[picker]?players[picker].displayName||players[picker].name:'???';
 const used=gs.usedCategories||[];
 if(isPicker){
+const myVote=gs.diffVotes&&gs.diffVotes[sk(player)];
 content=`<div class="category-pick">
 <div class="pick-title">Your turn to pick!</div>
 <div class="pick-sub">Choose a category</div>
+<div class="diff-vote"><button class="diff-btn ${myVote==='easy'?'selected':''}" data-diff="easy" onclick="voteDifficulty('easy')"><span class="diff-icon">😊</span>Easy</button><button class="diff-btn ${myVote==='medium'?'selected':''}" data-diff="medium" onclick="voteDifficulty('medium')"><span class="diff-icon">🤔</span>Medium</button><button class="diff-btn ${myVote==='hard'?'selected':''}" data-diff="hard" onclick="voteDifficulty('hard')"><span class="diff-icon">💀</span>Hard</button></div>
 <div class="category-grid">
 ${CATEGORIES.map(c=>`<button class="cat-btn" ${used.includes(c.id)?'disabled':''} onclick="pickCategory('${c.id}')" style="border-color:${c.color}"><span class="cat-icon">${c.icon}</span><span class="cat-name">${c.name}</span></button>`).join('')}
 </div></div>`}
@@ -942,6 +1043,16 @@ ${isSil?`<div class="sil-card revealed"><span class="question-points pts5">5pts<
 <div class="${isSil?'answers-grid-10':'answers-grid'}">${qd.answers.map((a,i)=>`<button class="answer-btn ${i===qd.correctIndex?'correct':'wrong'} locked">${esc(a)}${i===qd.correctIndex?' ✓':''}</button>`).join('')}</div>
 <div style="text-align:center;margin-top:8px;font-size:13px">${myAnswer&&myAnswer.answerIndex===qd.correctIndex?`<span style="color:var(--green)">Correct! +${qd.points}</span>`:`<span style="color:var(--red)">Wrong!</span>`}</div>
 ${fastP?`<div style="text-align:center;margin-top:4px;font-size:12px;color:var(--gold)">⚡ Fastest: ${esc(fastP.displayName||fastP.name)}</div>`:''}`}
+else if(phase==='steal'){
+const qd=gs.currentQuestionData;
+const mySteal=gs.stealAnswers&&gs.stealAnswers[sk(player)];
+const hasStolen=mySteal!==undefined&&mySteal!==null;
+if(qd){
+content=`<div class="steal-banner"><div class="steal-title">💀 Nobody got it right! STEAL ROUND!</div>
+<div class="question-card"><div class="question-text">${esc(qd.question)}</div></div>
+<div class="${qd.img?'answers-grid-10':'answers-grid'}">${qd.answers.map((a,i)=>`<button class="answer-btn ${hasStolen?'locked':''}" ${hasStolen?'disabled':''} onclick="submitSteal(${i})">${esc(a)}</button>`).join('')}</div>
+${hasStolen?'<div style="text-align:center;color:var(--gold);font-size:13px;margin-top:6px">Steal submitted!</div>':'<div style="text-align:center;color:var(--text-dim);font-size:12px;margin-top:6px">First correct answer gets 2x points!</div>'}</div>`}
+else{content=`<div class="waiting-box"><div class="waiting-icon">💀</div><div>Steal Round!</div></div>`}}
 else if(phase==='roundEnd'){
 content=`<div class="waiting-box"><div class="waiting-icon">📊</div><div>Next player picks!</div></div>`}
 
@@ -949,7 +1060,7 @@ document.getElementById('app').innerHTML=`<div class="game-screen">${content}</d
 // Remove old sidebar if exists, add new
 const oldSb=document.getElementById('gameSidebar');if(oldSb)oldSb.remove();
 document.body.insertAdjacentHTML('beforeend',renderSidebar());
-setupSoundboardListener();listenForEmotes();apply5050()}
+setupSoundboardListener();listenForEmotes();listenTaunts();apply5050()}
 
 function renderSidebar(){
 const ownedEmotes=userData&&userData.purchasedEmotes?Object.keys(userData.purchasedEmotes):[];
@@ -977,6 +1088,12 @@ if(ownedSounds.length>0){
 html+=`<div class="sidebar-divider"></div><div class="sidebar-label">Sounds</div>`;
 html+=ownedSounds.map(id=>{const s=SHOP_SOUNDS.find(x=>x.id===id);
 return s?`<button class="sidebar-btn" onclick="playSound('${id}')" title="${s.name}">${s.emoji}</button>`:''}).join('')}
+// Taunts
+html+=`<div class="sidebar-divider"></div><div class="sidebar-label">Taunts</div>`;
+html+=TAUNTS.slice(0,5).map((t,i)=>`<button class="sidebar-btn" onclick="sendTaunt(${i})" title="${t}" style="font-size:10px">${t.split(' ')[0]}</button>`).join('');
+// Music toggle
+html+=`<div class="sidebar-divider"></div>`;
+html+=`<button class="sidebar-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle Music">${bgMusic&&bgMusic.playing?'🔇':'🎵'}</button>`;
 html+=`</div>`;
 return html}
 
@@ -1064,28 +1181,58 @@ const qd=gs.currentQuestionData;if(!qd)return;
 const answers=gs.playerAnswers||{};
 const players=lobbyData.players||{};
 const updates={};
-let fastest=null,fastestTime=Infinity;
+let fastest=null,fastestTime=Infinity,anyCorrect=false;
 Object.entries(answers).forEach(([k,v])=>{
 const correct=v&&v.answerIndex===qd.correctIndex;
 const cur=players[k]?players[k].score||0:0;
 const curStreak=players[k]?players[k].streak||0:0;
+const maxStreak=players[k]?players[k].maxStreak||0:0;
 if(correct){
+anyCorrect=true;
 let pts=qd.points;
-// Speed bonus: answered in under 5 seconds
 const speed=v.answeredAt?((v.answeredAt-qd.startedAt)/1000):20;
 if(speed<5)pts+=1;
-// Streak bonus: 3+ streak gives +1
 if(curStreak>=2)pts+=1;
-// Double points power-up
 const usedDbl=gs.usedDouble||{};
 if(usedDbl[k])pts*=2;
 updates['players/'+k+'/score']=cur+pts;
 updates['players/'+k+'/streak']=curStreak+1;
+if(curStreak+1>maxStreak)updates['players/'+k+'/maxStreak']=curStreak+1;
 if(speed<fastestTime){fastestTime=speed;fastest=k}
 }else{
 updates['players/'+k+'/streak']=0}});
-updates['gameState/phase']='showAnswer';
+// If nobody got it right, trigger steal round
+if(!anyCorrect&&Object.keys(answers).length>0){
+updates['gameState/phase']='steal';
+updates['gameState/stealAnswers']=null;
+await db.ref('quiz/lobbies/'+lobbyCode).update(updates);
+// Give 10s for steal, then advance
+setTimeout(()=>{if(isHost&&lobbyData&&lobbyData.gameState&&lobbyData.gameState.phase==='steal')hostResolveSteal()},10000);
+return}
 if(fastest)updates['gameState/fastestPlayer']=fastest;
+showDrumroll(async()=>{
+updates['gameState/phase']='showAnswer';
+await db.ref('quiz/lobbies/'+lobbyCode).update(updates);
+setTimeout(()=>{showReactionCam(lobbyData.gameState,lobbyData.players)},500);
+setTimeout(()=>hostAfterAnswer(),4000)})}
+
+async function hostResolveSteal(){
+if(!isHost||!lobbyCode)return;
+const gs=lobbyData.gameState;if(!gs)return;
+const qd=gs.currentQuestionData;if(!qd)return;
+const steals=gs.stealAnswers||{};
+const players=lobbyData.players||{};
+const updates={};
+// Find first correct steal
+let stealWinner=null;
+Object.entries(steals).sort((a,b)=>(a[1].answeredAt||0)-(b[1].answeredAt||0)).forEach(([k,v])=>{
+if(!stealWinner&&v&&v.answerIndex===qd.correctIndex){
+stealWinner=k;
+const cur=players[k]?players[k].score||0:0;
+updates['players/'+k+'/score']=cur+qd.points*2;
+updates['players/'+k+'/streak']=(players[k]?players[k].streak||0:0)+1}});
+updates['gameState/phase']='showAnswer';
+if(stealWinner)updates['gameState/fastestPlayer']=stealWinner;
 await db.ref('quiz/lobbies/'+lobbyCode).update(updates);
 setTimeout(()=>hostAfterAnswer(),3000)}
 
@@ -1117,7 +1264,7 @@ coinsEarned=correct*2;
 if(i===0)coinsEarned+=10;
 else if(i===1)coinsEarned+=5;
 else if(i===2)coinsEarned+=3;
-results[k]={finalScore:v.score||0,rank:i+1,coinsEarned,name:v.name,displayName:v.displayName||v.name,avatar:v.avatar||'😎'};
+results[k]={finalScore:v.score||0,rank:i+1,coinsEarned,name:v.name,displayName:v.displayName||v.name,avatar:v.avatar||'😎',maxStreak:v.maxStreak||0};
 // Update user coins and stats
 db.ref('quiz/users/'+k+'/coins').transaction(c=>(Number(c)||0)+coinsEarned);
 db.ref('quiz/users/'+k+'/gamesPlayed').transaction(c=>(Number(c)||0)+1);
@@ -1159,6 +1306,7 @@ ${podiumHTML}
 <div class="rr-score"><div class="rr-pts">${v.finalScore}</div><div class="rr-coins">+${v.coinsEarned} 🪙</div></div>
 </div>`).join('')}</div>
 ${myResult?`<div style="text-align:center;font-size:14px;color:var(--gold)">You earned ${myResult.coinsEarned} coins!</div>`:''}
+<div class="mvp-section">${generateMVPs(results,gs).map(m=>`<div class="mvp-card"><div class="mvp-icon">${m.icon}</div><div class="mvp-title">${m.title}</div><div class="mvp-name">${esc(m.name)}</div></div>`).join('')}</div>
 <div class="results-btns">
 ${isHost?`<button class="btn-primary" onclick="playAgain()">Play Again</button>`:''}
 <button class="btn-danger" onclick="backToMenu()">Main Menu</button>
@@ -1168,7 +1316,7 @@ async function playAgain(){
 if(!isHost||!lobbyCode)return;
 const players=lobbyData.players||{};
 const updates={status:'waiting','gameState':null};
-Object.keys(players).forEach(k=>{updates['players/'+k+'/score']=0});
+Object.keys(players).forEach(k=>{updates['players/'+k+'/score']=0;updates['players/'+k+'/streak']=0;updates['players/'+k+'/maxStreak']=0});
 await db.ref('quiz/lobbies/'+lobbyCode).update(updates);
 showScreen('lobby',{code:lobbyCode})}
 
@@ -1193,8 +1341,14 @@ const el=document.getElementById('shopContent');if(!el)return;
 const ownedSounds=u.purchasedSounds||{};
 const ownedEmotes=u.purchasedEmotes||{};
 el.innerHTML=`<div class="shop-coins">🪙 ${fmt(u.coins||0)} coins</div>
-<div class="shop-tabs"><button class="shop-tab ${shopTab==='sounds'?'active':''}" onclick="shopTab='sounds';renderShopContent()">🔊 Sounds</button><button class="shop-tab ${shopTab==='emotes'?'active':''}" onclick="shopTab='emotes';renderShopContent()">😂 Emotes</button></div>
-<div class="shop-grid">${(shopTab==='sounds'?SHOP_SOUNDS:SHOP_EMOTES).map(item=>{
+<div class="shop-tabs"><button class="shop-tab ${shopTab==='sounds'?'active':''}" onclick="shopTab='sounds';renderShopContent()">🔊 Sounds</button><button class="shop-tab ${shopTab==='emotes'?'active':''}" onclick="shopTab='emotes';renderShopContent()">😂 Emotes</button><button class="shop-tab ${shopTab==='themes'?'active':''}" onclick="shopTab='themes';renderShopContent()">🎨 Themes</button></div>
+<div class="shop-grid">${shopTab==='themes'?SHOP_THEMES.map(item=>{
+const owned=u.purchasedThemes&&u.purchasedThemes[item.id];
+const active=currentTheme===item.class;
+return`<div class="shop-item ${owned?'owned':''} ${active?'active':''}" onclick="${owned?`applyTheme('${item.class}')`:`buyTheme('${item.id}','${item.class}',${item.price})`}">
+<div class="si-icon">${item.preview}</div><div class="si-name">${item.name}</div>
+<div class="si-price">${owned?(active?'Active':'Use'):'🪙 '+item.price}</div></div>`}).join('')
+:(shopTab==='sounds'?SHOP_SOUNDS:SHOP_EMOTES).map(item=>{
 const owned=shopTab==='sounds'?ownedSounds[item.id]:ownedEmotes[item.id];
 return`<div class="shop-item ${owned?'owned':''}" onclick="${owned?'':`buyItem('${shopTab}','${item.id}',${item.price})`}">
 <div class="si-icon">${item.emoji}</div><div class="si-name">${item.name}</div>
@@ -1212,6 +1366,20 @@ userData.coins=(userData.coins||0)-price;
 if(!userData[key])userData[key]={};
 userData[key][id]=true;
 renderShopContent();showToast('Purchased!','success');
+}catch(e){showToast('Purchase failed','error')}}
+
+async function buyTheme(id,themeClass,price){
+if(!player||!db)return;
+const u=userData||defUserData();
+if((u.coins||0)<price){showToast('Not enough coins!','error');return}
+try{
+await db.ref('quiz/users/'+sk(player)+'/coins').transaction(c=>{const v=Number(c)||0;return v>=price?v-price:v});
+await db.ref('quiz/users/'+sk(player)+'/purchasedThemes/'+id).set(true);
+userData.coins=(userData.coins||0)-price;
+if(!userData.purchasedThemes)userData.purchasedThemes={};
+userData.purchasedThemes[id]=true;
+applyTheme(themeClass);
+renderShopContent();showToast('Theme unlocked!','success');
 }catch(e){showToast('Purchase failed','error')}}
 
 /* ===== PROFILE ===== */
@@ -1368,6 +1536,250 @@ const c=document.createElement('div');c.className='confetti';
 c.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
 document.body.appendChild(c);setTimeout(()=>c.remove(),4000)}}
 
+/* ===== LOBBY CHAT ===== */
+function listenChat(){
+if(chatRef||!lobbyCode)return;
+chatRef=db.ref('quiz/lobbies/'+lobbyCode+'/chat');
+chatRef.orderByChild('t').limitToLast(50).on('child_added',snap=>{
+const d=snap.val();if(!d)return;
+const box=document.getElementById('chatMsgs');if(!box)return;
+const div=document.createElement('div');
+div.className='chat-msg'+(d.system?' system':'');
+if(d.system){div.textContent=d.text}
+else{div.innerHTML=`<span class="chat-name">${esc(d.name)}:</span><span class="chat-text">${esc(d.text)}</span>`}
+box.appendChild(div);box.scrollTop=box.scrollHeight})}
+
+async function sendChat(){
+const inp=document.getElementById('chatInput');if(!inp)return;
+const text=inp.value.trim();if(!text||!lobbyCode||!player)return;
+inp.value='';
+const u=userData||defUserData();
+await db.ref('quiz/lobbies/'+lobbyCode+'/chat').push({name:u.displayName||player,text,t:Date.now()})}
+
+/* ===== TAUNTS ===== */
+function addTauntToSidebar(){
+// Taunts are added via the sidebar render
+}
+
+async function sendTaunt(idx){
+if(!lobbyCode||!player)return;
+if(Date.now()-lastEmoteAt<3000)return;
+lastEmoteAt=Date.now();
+const t=TAUNTS[idx];if(!t)return;
+const u=userData||defUserData();
+await db.ref('quiz/lobbies/'+lobbyCode+'/taunts').push({from:u.displayName||player,text:t,t:Date.now()})}
+
+function listenTaunts(){
+if(tauntRef||!lobbyCode)return;
+const startTime=Date.now();
+tauntRef=db.ref('quiz/lobbies/'+lobbyCode+'/taunts');
+tauntRef.on('child_added',snap=>{
+const d=snap.val();if(!d||!d.t||d.t<startTime-500)return;
+showTauntPopup(d.from,d.text);
+snap.ref.remove()})}
+
+function showTauntPopup(from,text){
+const el=document.createElement('div');
+el.className='taunt-popup';
+el.innerHTML=`<div class="taunt-from">${esc(from)} says:</div><div class="taunt-text">${esc(text)}</div>`;
+document.body.appendChild(el);
+sfxPick();
+setTimeout(()=>el.remove(),2500)}
+
+/* ===== DRUMROLL + REACTION CAM ===== */
+function showDrumroll(callback){
+const overlay=document.createElement('div');
+overlay.className='drumroll-overlay';overlay.id='drumrollEl';
+overlay.innerHTML='<div class="drumroll-text">3</div>';
+document.body.appendChild(overlay);
+sfxCountdown();
+let count=3;
+const iv=setInterval(()=>{
+count--;
+if(count>0){
+overlay.querySelector('.drumroll-text').textContent=count;
+sfxCountdown();
+}else{
+clearInterval(iv);
+overlay.querySelector('.drumroll-text').textContent='⚡';
+sfxPick();
+setTimeout(()=>{overlay.remove();if(callback)callback()},400);
+}},600)}
+
+function showReactionCam(gs,players){
+if(!gs||!gs.playerAnswers||!gs.currentQuestionData)return;
+const qd=gs.currentQuestionData;
+const entries=Object.entries(gs.playerAnswers||{}).slice(0,6);
+if(entries.length===0)return;
+const banner=document.createElement('div');
+banner.className='reaction-banner';banner.id='reactionBanner';
+entries.forEach(([k,v])=>{
+if(!v||!players[k])return;
+const correct=v.answerIndex===qd.correctIndex;
+const p=players[k];
+const texts=correct?CORRECT_REACTIONS:WRONG_REACTIONS;
+const text=texts[Math.floor(Math.random()*texts.length)];
+const row=document.createElement('div');
+row.className='reaction-row '+(correct?'correct-r':'wrong-r');
+row.innerHTML=`<span class="r-avatar">${avatarOrFallback(p.avatar,28)}</span><span class="r-name">${esc(p.displayName||p.name)}</span><span class="r-text">${text}</span>`;
+banner.appendChild(row)});
+document.body.appendChild(banner);
+setTimeout(()=>banner.remove(),2800)}
+
+/* ===== STEAL ROUND ===== */
+async function hostCheckSteal(){
+if(!isHost||!lobbyCode)return false;
+const gs=lobbyData.gameState;if(!gs)return false;
+const answers=gs.playerAnswers||{};
+const qd=gs.currentQuestionData;if(!qd)return false;
+const anyCorrect=Object.values(answers).some(v=>v&&v.answerIndex===qd.correctIndex);
+return !anyCorrect}
+
+async function triggerSteal(){
+if(!isHost||!lobbyCode)return;
+await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({phase:'steal',stealAnswers:null})}
+
+async function submitSteal(idx){
+if(!lobbyCode)return;
+const gs=lobbyData&&lobbyData.gameState;
+if(!gs||gs.phase!=='steal')return;
+if(gs.stealAnswers&&gs.stealAnswers[sk(player)])return;
+sfxTick();
+await db.ref('quiz/lobbies/'+lobbyCode+'/gameState/stealAnswers/'+sk(player)).set({answerIndex:idx,answeredAt:Date.now()})}
+
+/* ===== CUSTOM QUESTIONS ===== */
+function showCustomQModal(){
+const overlay=document.createElement('div');
+overlay.className='modal-overlay';overlay.id='customQModal';
+overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};
+overlay.innerHTML=`<div class="modal" style="max-width:450px">
+<h2>Add Custom Question</h2>
+<div class="custom-q-form">
+<label class="field-label">Question</label>
+<textarea id="cqQuestion" placeholder="What is...?" rows="2"></textarea>
+<label class="field-label">Correct Answer</label>
+<input id="cqCorrect" placeholder="The right answer">
+<label class="field-label">Wrong Answer 1</label><input id="cqWrong1" placeholder="Wrong answer">
+<label class="field-label">Wrong Answer 2</label><input id="cqWrong2" placeholder="Wrong answer">
+<label class="field-label">Wrong Answer 3</label><input id="cqWrong3" placeholder="Wrong answer">
+<label class="field-label">Category</label>
+<select id="cqCat" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-family:'Fredoka',sans-serif">
+${CATEGORIES.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('')}
+</select>
+</div>
+<button class="btn-primary" style="margin-top:10px" onclick="addCustomQ()">Add Question</button>
+<button class="btn-danger" style="margin-top:6px" onclick="document.getElementById('customQModal').remove()">Close</button>
+</div>`;
+document.body.appendChild(overlay)}
+
+function addCustomQ(){
+const q=(document.getElementById('cqQuestion')||{}).value;
+const correct=(document.getElementById('cqCorrect')||{}).value;
+const w1=(document.getElementById('cqWrong1')||{}).value;
+const w2=(document.getElementById('cqWrong2')||{}).value;
+const w3=(document.getElementById('cqWrong3')||{}).value;
+const cat=(document.getElementById('cqCat')||{}).value;
+if(!q||!correct||!w1||!w2||!w3){showToast('Fill all fields!','error');return}
+const newQ={id:'custom_'+Date.now(),q,answers:[correct,w1,w2,w3],correct:0,points:1};
+if(!QUESTIONS[cat])QUESTIONS[cat]=[];
+QUESTIONS[cat].push(newQ);
+showToast('Question added!','success');
+document.getElementById('customQModal').remove()}
+
+/* ===== DIFFICULTY VOTE ===== */
+async function voteDifficulty(diff){
+if(!lobbyCode||!player)return;
+sfxTick();
+await db.ref('quiz/lobbies/'+lobbyCode+'/gameState/diffVotes/'+sk(player)).set(diff);
+document.querySelectorAll('.diff-btn').forEach(b=>{b.classList.remove('selected');if(b.dataset.diff===diff)b.classList.add('selected')})}
+
+/* ===== LEADERBOARD ===== */
+async function showLeaderboard(){
+const overlay=document.createElement('div');
+overlay.className='modal-overlay';overlay.id='lbModal';
+overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};
+overlay.innerHTML=`<div class="modal" style="max-width:500px"><h2>🏆 Leaderboard</h2><div id="lbContent"><div class="waiting-dots">Loading</div></div>
+<button class="btn-danger" style="margin-top:12px" onclick="document.getElementById('lbModal').remove()">Close</button></div>`;
+document.body.appendChild(overlay);
+try{
+const snap=await db.ref('quiz/users').orderByChild('gamesWon').limitToLast(20).once('value');
+const users=[];
+snap.forEach(c=>{const v=c.val();if(v&&v.name)users.push(v)});
+users.sort((a,b)=>(b.gamesWon||0)-(a.gamesWon||0));
+const medals=['🥇','🥈','🥉'];
+document.getElementById('lbContent').innerHTML=users.length===0?'<div style="color:var(--text-dim)">No data yet</div>':`<div class="lb-list">${users.map((u,i)=>`<div class="lb-row">
+<span class="lb-rank">${medals[i]||'#'+(i+1)}</span>
+<span style="font-size:20px">${avatarOrFallback(u.avatar,24)}</span>
+<span class="lb-name">${esc(u.displayName||u.name)}</span>
+<span class="lb-stat">${u.gamesWon||0}W / ${u.gamesPlayed||0}G</span>
+</div>`).join('')}</div>`}catch(e){document.getElementById('lbContent').innerHTML='<div style="color:var(--red)">Failed to load</div>'}}
+
+/* ===== THEMES ===== */
+function applyTheme(themeClass){
+document.body.className=themeClass||'';
+currentTheme=themeClass;
+localStorage.setItem('quizTheme',themeClass)}
+
+function initTheme(){if(currentTheme)document.body.className=currentTheme}
+
+/* ===== BACKGROUND MUSIC ===== */
+function createBgMusic(){
+if(bgMusic)return;
+const ctx=getAudioCtx();
+bgMusic={ctx,playing:false};
+startBgLoop()}
+
+function startBgLoop(){
+if(!bgMusic||!bgMusic.ctx)return;
+const ctx=bgMusic.ctx;
+const now=ctx.currentTime;
+const notes=[261,293,329,349,392,349,329,293];
+const gainNode=ctx.createGain();gainNode.gain.value=0.04;gainNode.connect(ctx.destination);
+bgMusic.gainNode=gainNode;
+function playBar(startTime){
+notes.forEach((freq,i)=>{
+const osc=ctx.createOscillator();osc.type='sine';osc.frequency.value=freq;
+const g=ctx.createGain();g.gain.setValueAtTime(0.04,startTime+i*0.5);g.gain.exponentialRampToValueAtTime(0.001,startTime+i*0.5+0.45);
+osc.connect(g);g.connect(gainNode);osc.start(startTime+i*0.5);osc.stop(startTime+i*0.5+0.45)});
+bgMusic.nextBar=setTimeout(()=>playBar(ctx.currentTime),notes.length*500)}
+bgMusic.playing=true;
+playBar(now)}
+
+function stopBgMusic(){
+if(!bgMusic)return;
+bgMusic.playing=false;
+if(bgMusic.nextBar)clearTimeout(bgMusic.nextBar);
+if(bgMusic.gainNode)bgMusic.gainNode.gain.value=0}
+
+function toggleMusic(){
+if(!bgMusic)createBgMusic();
+else if(bgMusic.playing)stopBgMusic();
+else startBgLoop();
+const btn=document.getElementById('musicBtn');
+if(btn)btn.textContent=bgMusic&&bgMusic.playing?'🔇':'🎵'}
+
+/* ===== MVP AWARDS ===== */
+function generateMVPs(results,gs){
+const mvps=[];
+const entries=Object.entries(results);
+if(entries.length===0)return mvps;
+// Speed Demon - player who answered fastest overall
+let speedDemon=null,bestAvgSpeed=Infinity;
+entries.forEach(([k,v])=>{if(v.avgSpeed&&v.avgSpeed<bestAvgSpeed){bestAvgSpeed=v.avgSpeed;speedDemon=v}});
+if(speedDemon)mvps.push({icon:'⚡',title:'Speed Demon',name:speedDemon.displayName||speedDemon.name});
+// Streak Master - highest streak
+let streakMaster=null,bestStreak=0;
+entries.forEach(([k,v])=>{if((v.maxStreak||0)>bestStreak){bestStreak=v.maxStreak;streakMaster=v}});
+if(streakMaster&&bestStreak>=2)mvps.push({icon:'🔥',title:'Streak Master',name:streakMaster.displayName||streakMaster.name});
+// Comeback King - biggest score jump in second half (approximated by rank vs early performance)
+if(entries.length>=3){
+const last=entries[entries.length-1];
+mvps.push({icon:'👑',title:'Comeback King',name:last[1].displayName||last[1].name})}
+// Brain - most correct answers (top scorer already on podium, so this is mostly the same)
+const top=entries[0];
+if(top)mvps.push({icon:'🧠',title:'Big Brain',name:top[1].displayName||top[1].name});
+return mvps}
+
 /* ===== QUIZ SFX ===== */
 let audioCtx=null;
 function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx}
@@ -1436,6 +1848,7 @@ o.connect(g);g.connect(ctx.destination);o.start(now+i*0.1);o.stop(now+i*0.1+0.15
 function init(){
 initFB();
 getApiToken();
+initTheme();
 try{
 const ses=JSON.parse(localStorage.getItem('quizSession'));
 if(ses&&ses.name&&ses.pwHash){autoLogin(ses.name,ses.pwHash);return}}catch(e){}
