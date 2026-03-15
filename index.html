@@ -344,6 +344,33 @@ body{font-family:'Fredoka',sans-serif;background:linear-gradient(170deg,var(--bg
 /* ===== HOT STREAK ===== */
 .pb-player.hot-streak .pb-avatar-wrap{animation:hotGlow 1.5s ease-in-out infinite alternate}
 @keyframes hotGlow{0%{filter:drop-shadow(0 0 4px rgba(255,215,0,.3))}100%{filter:drop-shadow(0 0 12px rgba(255,215,0,.7))}}
+
+/* ===== LEADER CROWN ===== */
+.pb-player.leader .pb-avatar-wrap::before{content:'👑';position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:14px;z-index:10;animation:crownBob 2s ease-in-out infinite}
+@keyframes crownBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
+
+/* ===== COMBO COUNTER ===== */
+.combo-display{position:fixed;top:80px;right:20px;text-align:center;z-index:80;pointer-events:none}
+.combo-num{font-size:36px;font-weight:800;color:var(--gold);font-family:'JetBrains Mono',monospace;text-shadow:0 0 20px rgba(255,215,0,.5),0 3px 0 var(--depth-dark)}
+.combo-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:2px}
+.combo-display.active{animation:comboPulse .4s ease-out}
+@keyframes comboPulse{0%{transform:scale(1.4)}50%{transform:scale(0.9)}100%{transform:scale(1)}}
+
+/* ===== ROUND SUMMARY ===== */
+.round-summary{text-align:center;padding:20px;animation:phaseIn .35s ease-out}
+.round-summary .rs-title{font-size:20px;font-weight:800;color:var(--accent);margin-bottom:12px}
+.round-summary .rs-stat{display:inline-block;margin:0 12px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-bottom:3px solid var(--depth-dark);border-radius:10px;font-size:13px}
+.round-summary .rs-stat .rs-val{font-size:20px;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+
+/* ===== RANDOM EVENT BANNER ===== */
+.event-banner{position:fixed;top:60px;left:50%;transform:translateX(-50%);padding:12px 28px;background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(124,92,255,.15));border:2px solid var(--gold);border-radius:14px;z-index:200;animation:eventSlide 4s ease-in-out forwards;font-size:16px;font-weight:800;color:var(--gold);text-align:center;white-space:nowrap;box-shadow:0 0 30px rgba(255,215,0,.2)}
+@keyframes eventSlide{0%{opacity:0;transform:translateX(-50%) translateY(-30px)}10%{opacity:1;transform:translateX(-50%) translateY(0)}85%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-30px)}}
+
+/* ===== TIMER CHOICE ===== */
+.timer-choice{display:flex;gap:8px;justify-content:center;margin:6px 0}
+.timer-btn{padding:8px 16px;border:2px solid var(--border);border-bottom:3px solid var(--depth-dark);border-radius:10px;background:var(--card);color:var(--text);font-family:'Fredoka',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .12s}
+.timer-btn:hover{transform:translateY(-2px)}
+.timer-btn.selected{border-color:var(--accent);background:rgba(124,92,255,.1)}
 </style>
 </head>
 <body>
@@ -1010,7 +1037,7 @@ const gs=lobby.gameState;if(!gs)return;
 const players=lobby.players||{};
 const phase=gs.phase;
 currentScreen='game';
-if(phase!=='showQuestion')hidden5050=[];
+if(phase!=='showQuestion'){hidden5050=[];window._lastEventShown=null}
 
 if(phase==='gameOver'){renderResults();return}
 
@@ -1029,12 +1056,14 @@ const sorted=Object.entries(players).filter(([k,v])=>v.connected!==false).sort((
 
 const answers=gs.playerAnswers||{};
 const picker=gs.currentPicker||'';
+const leaderKey=sorted.length>0?sorted[0][0]:null;
 const playerBarHTML=`<div class="player-bar" id="playerBar">
 ${sorted.map(([k,v])=>{
 const hasAnswered=answers[k]!==undefined&&answers[k]!==null;
 const isPicking=k===picker&&phase==='pickCategory';
 const streak=v.streak||0;
-return`<div class="pb-player ${k===sk(player)?'me':''} ${hasAnswered&&phase==='showQuestion'?'answered':''} ${isPicking?'picking':''} ${streak>=3?'hot-streak':''}" data-pk="${k}">
+const isLeader=k===leaderKey&&(v.score||0)>0;
+return`<div class="pb-player ${k===sk(player)?'me':''} ${hasAnswered&&phase==='showQuestion'?'answered':''} ${isPicking?'picking':''} ${streak>=3?'hot-streak':''} ${isLeader?'leader':''}" data-pk="${k}">
 <div class="pb-avatar-wrap">${avatarOrFallback(v.avatar,44)}</div>
 ${streak>=2?`<div class="pb-streak">🔥${streak}</div>`:''}
 <div class="pb-name">${esc(v.displayName||v.name)}</div>
@@ -1047,9 +1076,20 @@ const pickerName=players[picker]?players[picker].displayName||players[picker].na
 const used=gs.usedCategories||[];
 if(isPicker){
 const myVote=gs.diffVotes&&gs.diffVotes[sk(player)];
+const qMode=gs.questionMode||'normal';
 content=`<div class="category-pick">
 <div class="pick-title">Your turn to pick!</div>
-<div class="pick-sub">Choose a category</div>
+<div class="pick-sub">Choose question type & category</div>
+<div class="diff-vote" style="margin-bottom:6px">
+<button class="diff-btn ${qMode==='normal'?'selected':''}" onclick="setQuestionMode('normal')"><span class="diff-icon">📝</span>Normal</button>
+<button class="diff-btn ${qMode==='picture'?'selected':''}" onclick="setQuestionMode('picture')"><span class="diff-icon">🖼️</span>Picture</button>
+<button class="diff-btn ${qMode==='random'?'selected':''}" onclick="setQuestionMode('random')"><span class="diff-icon">🎲</span>Random</button>
+</div>
+<div class="timer-choice">
+<button class="timer-btn ${(gs.roundTimer||20)===10?'selected':''}" onclick="setRoundTimer(10)">⚡ 10s</button>
+<button class="timer-btn ${(gs.roundTimer||20)===20?'selected':''}" onclick="setRoundTimer(20)">⏱️ 20s</button>
+<button class="timer-btn ${(gs.roundTimer||20)===30?'selected':''}" onclick="setRoundTimer(30)">🐢 30s</button>
+</div>
 <div class="diff-vote"><button class="diff-btn ${myVote==='easy'?'selected':''}" data-diff="easy" onclick="voteDifficulty('easy')"><span class="diff-icon">😊</span>Easy</button><button class="diff-btn ${myVote==='medium'?'selected':''}" data-diff="medium" onclick="voteDifficulty('medium')"><span class="diff-icon">🤔</span>Medium</button><button class="diff-btn ${myVote==='hard'?'selected':''}" data-diff="hard" onclick="voteDifficulty('hard')"><span class="diff-icon">💀</span>Hard</button></div>
 <div class="category-grid">
 ${CATEGORIES.map(c=>`<button class="cat-btn" ${used.includes(c.id)?'disabled':''} onclick="pickCategory('${c.id}')" style="border-color:${c.color}"><span class="cat-icon">${c.icon}</span><span class="cat-name">${c.name}</span></button>`).join('')}
@@ -1059,16 +1099,21 @@ else{content=`<div class="waiting-box"><div class="waiting-icon">🤔</div><div>
 const qd=gs.currentQuestionData;if(!qd)return;
 const myAnswer=gs.playerAnswers&&gs.playerAnswers[sk(player)];
 const hasAnswered=myAnswer!==undefined&&myAnswer!==null;
+const timerSecs=qd.speedRound?10:(gs.roundTimer||20);
 const elapsed=Math.max(0,(Date.now()-qd.startedAt)/1000);
-const remaining=Math.max(0,20-elapsed);
-const pct=Math.max(0,(remaining/20)*100);
+const remaining=Math.max(0,timerSecs-elapsed);
+// Show event banner once
+if(qd.event&&!window._lastEventShown){window._lastEventShown=qd.startedAt;showEventBanner(qd.event)}
+const pct=Math.max(0,(remaining/timerSecs)*100);
 const cat=CATEGORIES.find(c=>c.id===gs.selectedCategory);
 const isSil=!!qd.img;
+const myStreak=players[sk(player)]?players[sk(player)].streak||0:0;
 content=`<div class="game-header"><span class="game-round">Question ${(gs.currentQuestion||0)+1}/${CATEGORIES.length}</span><span class="game-category">${cat?cat.icon+' '+cat.name:''}</span></div>
+${myStreak>=2?`<div class="combo-display active"><div class="combo-num">${myStreak}x</div><div class="combo-label">Streak</div></div>`:''}
 <div class="timer-bar-wrap"><div class="timer-bar-fill ${remaining<5?'urgent':''}" style="width:${pct}%"></div></div>
 <div class="timer-text">${Math.ceil(remaining)}s</div>
-${isSil?`<div class="sil-card"><span class="question-points pts5">5pts</span><div class="sil-label">${esc(qd.question)}</div><img class="sil-img" src="${qd.img}" onerror="this.style.display='none';this.parentElement.querySelector('.sil-label').textContent='🖼️ '+this.parentElement.querySelector('.sil-label').textContent+' (image failed to load)'" alt="?"></div>`
-:`<div class="question-card"><span class="question-points ${qd.points===5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${esc(qd.question)}</div></div>`}
+${isSil?`<div class="sil-card"><span class="question-points pts5">${qd.points}pts</span><div class="sil-label">${esc(qd.question)}</div><img class="sil-img" src="${qd.img}" onerror="this.style.display='none';this.parentElement.querySelector('.sil-label').textContent='🖼️ '+this.parentElement.querySelector('.sil-label').textContent+' (image failed to load)'" alt="?"></div>`
+:`<div class="question-card"><span class="question-points ${qd.points>=5?'pts5':'pts1'}">${qd.points}pt${qd.points>1?'s':''}</span><div class="question-text">${qd.blindRound?'🙈 ???':esc(qd.question)}</div></div>`}
 <div class="${isSil?'answers-grid-10':'answers-grid'}">${qd.answers.map((a,i)=>`<button class="answer-btn ${hasAnswered?(myAnswer.answerIndex===i?'selected':'locked'):''}${hasAnswered?' disabled':''}" onclick="submitAnswer(${i})">${esc(a)}</button>`).join('')}</div>
 ${hasAnswered?'<div style="text-align:center;color:var(--text-dim);font-size:12px;margin-top:4px">Answer locked in!</div>':''}`;
 startTimerTick()}
@@ -1156,15 +1201,26 @@ gameTimer=setInterval(()=>{
 const gs=lobbyData&&lobbyData.gameState;
 if(!gs||gs.phase!=='showQuestion'){clearInterval(gameTimer);gameTimer=null;return}
 const qd=gs.currentQuestionData;if(!qd)return;
+const tSecs=qd.speedRound?10:(gs.roundTimer||20);
 const elapsed=(Date.now()-qd.startedAt)/1000;
-const remaining=Math.max(0,20-elapsed);
-const pct=Math.max(0,(remaining/20)*100);
+const remaining=Math.max(0,tSecs-elapsed);
+const pct=Math.max(0,(remaining/tSecs)*100);
 const timerEl=document.querySelector('.timer-text');
 const barEl=document.querySelector('.timer-bar-fill');
 if(timerEl)timerEl.textContent=Math.ceil(remaining)+'s';
 if(barEl){barEl.style.width=pct+'%';if(remaining<5){barEl.classList.add('urgent');const sec=Math.ceil(remaining);if(sec>0&&sec<=5&&Math.abs(remaining-sec)<0.3)sfxCountdown()}else barEl.classList.remove('urgent')}
 if(remaining<=0&&isHost){clearInterval(gameTimer);gameTimer=null;hostAdvanceFromQuestion()}
 },500)}
+
+async function setQuestionMode(mode){
+if(!lobbyCode)return;
+sfxTick();
+await db.ref('quiz/lobbies/'+lobbyCode+'/gameState/questionMode').set(mode)}
+
+async function setRoundTimer(secs){
+if(!lobbyCode)return;
+sfxTick();
+await db.ref('quiz/lobbies/'+lobbyCode+'/gameState/roundTimer').set(secs)}
 
 async function pickCategory(catId){
 sfxPick();
@@ -1195,12 +1251,17 @@ advancing=false;
 const gs=lobbyData.gameState;
 const cat=gs.selectedCategory;
 const used=gs.usedQuestionIds||[];
+const qMode=gs.questionMode||'random';
 let q=null;
-// 40% chance of silhouette question
 const silPool=SILHOUETTE_QS[cat]||[];
 const availSil=silPool.filter(s=>!used.includes(s.id));
-if(availSil.length>0&&Math.random()<0.4){
-q=availSil[Math.floor(Math.random()*availSil.length)]}
+// Question mode: 'picture' = force silhouette, 'normal' = force text, 'random' = 40% chance
+if(qMode==='picture'&&availSil.length>0){
+q=availSil[Math.floor(Math.random()*availSil.length)]
+}else if(qMode==='random'&&availSil.length>0&&Math.random()<0.4){
+q=availSil[Math.floor(Math.random()*availSil.length)]
+}
+// For 'normal' mode, skip silhouettes entirely
 // Try API for supported categories
 if(!q&&API_CATEGORIES.includes(cat)){
 const apiQs=await fetchApiQuestions(cat,1);
@@ -1215,6 +1276,12 @@ const shuffled=shuffleAnswers(q);
 used.push(q.id);
 const qData={question:q.q,answers:shuffled.answers,correctIndex:shuffled.correctIndex,points:q.points,startedAt:Date.now()};
 if(q.img)qData.img=q.img;
+// 20% chance of random event (not on first question)
+const qNum=gs.currentQuestion||0;
+if(qNum>0&&Math.random()<0.2){
+const evt=RANDOM_EVENTS[Math.floor(Math.random()*RANDOM_EVENTS.length)];
+evt.apply(qData,gs);
+qData.event=evt.text}
 await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({
 phase:'showQuestion',currentQuestionData:qData,
 playerAnswers:null,usedQuestionIds:used})}
@@ -1303,7 +1370,7 @@ const qNum=(gs.currentQuestion||0)+1;
 setTimeout(async()=>{
 await db.ref('quiz/lobbies/'+lobbyCode+'/gameState').update({
 phase:'pickCategory',currentPicker:nextPicker,pickerIndex:pickerIdx,
-selectedCategory:'',playerAnswers:null,currentQuestion:qNum})},3000)}
+selectedCategory:'',playerAnswers:null,currentQuestion:qNum,questionMode:'random',diffVotes:null,roundTimer:20})},3000)}
 
 async function hostEndGame(){
 if(!isHost||!lobbyCode)return;
@@ -1832,6 +1899,20 @@ mvps.push({icon:'👑',title:'Comeback King',name:last[1].displayName||last[1].n
 const top=entries[0];
 if(top)mvps.push({icon:'🧠',title:'Big Brain',name:top[1].displayName||top[1].name});
 return mvps}
+
+/* ===== RANDOM EVENTS ===== */
+const RANDOM_EVENTS=[
+{id:'double',text:'⚡ DOUBLE POINTS ROUND! ⚡',apply:(qData)=>{qData.points=(qData.points||1)*2}},
+{id:'speed',text:'💨 SPEED ROUND! 10 SECONDS! 💨',apply:(qData)=>{qData.speedRound=true}},
+{id:'blind',text:'🙈 BLIND ROUND! No question text! 🙈',apply:(qData)=>{qData.blindRound=true}}
+];
+
+function showEventBanner(text){
+const el=document.createElement('div');
+el.className='event-banner';el.textContent=text;
+document.body.appendChild(el);
+sfxGameStart();
+setTimeout(()=>el.remove(),4200)}
 
 /* ===== SCORE POPUP ===== */
 function showScorePopup(playerKey,pts,correct){
